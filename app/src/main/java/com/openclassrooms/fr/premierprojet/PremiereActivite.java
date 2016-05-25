@@ -8,6 +8,10 @@ public class PremiereActivite extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        /**
+         * It's possible to add a simple TextView but it's recommanded to use xml configuration
+         * instead.
+         */
         setContentView(R.layout.activity_premiere_activite);
     }
 }
