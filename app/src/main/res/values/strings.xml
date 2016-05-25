@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">PremierProjet</string>
+    <string name="app_name">FirstProject</string>
+    <string name="helloworld">Hello World !</string>
 </resources>
