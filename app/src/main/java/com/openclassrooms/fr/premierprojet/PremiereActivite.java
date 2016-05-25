@@ -13,20 +13,11 @@ public class PremiereActivite extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_premiere_activite);
+    }
 
+    public void sayHello(View v) {
         final TextView textView = (TextView) findViewById(R.id.textView);
-
-        Button button = (Button) findViewById(R.id.button);
-        if (button != null) {
-            button.setOnClickListener(new View.OnClickListener() {
-
-                @Override
-                public void onClick(View view) {
-                    if (textView != null) {
-                        textView.setText(R.string.helloworld);
-                    }
-                }
-            });
-        }
+        assert textView != null;
+        textView.setText(R.string.helloworld);
     }
 }
