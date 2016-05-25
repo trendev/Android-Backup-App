@@ -2,4 +2,5 @@
 <resources>
     <string name="app_name">PremierProjet</string>
     <string name="helloworld">Bonjour Le Monde !</string>
+    <string name="button">Dire Bonjour</string>
 </resources>

@@ -2,4 +2,5 @@
 <resources>
     <string name="app_name">ErsterEntwurf</string>
     <string name="helloworld">Hallo Welt !</string>
+    <string name="button">Hallo Sagen</string>
 </resources>
