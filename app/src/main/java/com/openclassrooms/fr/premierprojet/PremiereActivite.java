@@ -1,15 +1,13 @@
 package com.openclassrooms.fr.premierprojet;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Calendar;
-import java.util.Date;
 
 public class PremiereActivite extends AppCompatActivity {
 
@@ -30,12 +28,12 @@ public class PremiereActivite extends AppCompatActivity {
 
         Calendar calendar = Calendar.getInstance();
 
-        String text = message+"\n"+
+        String text = message + "\n" +
                 calendar.get(Calendar.DAY_OF_MONTH)
-                +"/"+calendar.get(Calendar.MONTH)
-                +"/"+calendar.get(Calendar.YEAR)
-                +" - "+calendar.get(Calendar.HOUR_OF_DAY)
-                +":"+calendar.get(Calendar.MINUTE);
+                + "/" + calendar.get(Calendar.MONTH)
+                + "/" + calendar.get(Calendar.YEAR)
+                + " - " + calendar.get(Calendar.HOUR_OF_DAY)
+                + ":" + calendar.get(Calendar.MINUTE);
 
         textView.setText(text);
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
