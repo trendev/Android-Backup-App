@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class PremiereActivite extends AppCompatActivity {
 
@@ -19,5 +20,6 @@ public class PremiereActivite extends AppCompatActivity {
         final TextView textView = (TextView) findViewById(R.id.textView);
         assert textView != null;
         textView.setText(R.string.helloworld);
+        Toast.makeText(this,R.string.helloworld,Toast.LENGTH_SHORT).show();
     }
 }
