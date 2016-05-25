@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">FirstProject</string>
-    <string name="helloworld">Hello World !</string>
+    <string name="helloworld">Hello %1$s !</string>
     <string name="button">Say Hello</string>
+    <string name="firstname">First Name:</string>
+    <string name="edit_firstname">Enter your First Name</string>
 </resources>

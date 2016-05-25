@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">ErsterEntwurf</string>
-    <string name="helloworld">Hallo Welt !</string>
+    <string name="helloworld">Hallo %1$s !</string>
     <string name="button">Hallo Sagen</string>
+    <string name="firstname">Vorname:</string>
+    <string name="edit_firstname">Geben Sie Ihren Vornamen</string>
 </resources>

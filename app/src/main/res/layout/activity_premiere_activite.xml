@@ -34,4 +34,31 @@
         android:clickable="false"
         android:onClick="sayHello"/>
 
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:id="@+id/firstname"
+        android:ems="10"
+        android:layout_alignParentTop="true"
+        android:layout_alignRight="@+id/button"
+        android:layout_alignEnd="@+id/button"
+        android:textSize="14sp"
+        android:layout_toEndOf="@+id/textView2"
+        android:layout_toRightOf="@+id/textView2"
+        android:textColorHint="#2aa630"
+        android:singleLine="false"
+        android:hint="@string/edit_firstname" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/firstname"
+        android:id="@+id/textView2"
+        android:layout_alignBaseline="@+id/firstname"
+        android:textStyle="bold"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
 </RelativeLayout>
