@@ -13,5 +13,7 @@ public class PremiereActivite extends AppCompatActivity {
          * instead.
          */
         setContentView(R.layout.activity_premiere_activite);
+        String hello = getResources().getString(R.string.helloworld);
+        System.out.println(hello.concat(" I'm happy to meet you;) "));
     }
 }
