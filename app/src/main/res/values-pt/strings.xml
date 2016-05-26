@@ -5,5 +5,5 @@
     <string name="button">Dizer Olà</string>
     <string name="firstname">Primeiro Nome:</string>
     <string name="edit_firstname">Digite seu Primeiro Nome</string>
-    <string name="env">Env</string>
+    <string name="process">Processo</string>
 </resources>

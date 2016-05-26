@@ -71,7 +71,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignRight="@+id/button"
-        android:onClick="displayEnv"
-        android:text="@string/env" />
+        android:onClick="displayProcess"
+        android:text="@string/process" />
 
 </RelativeLayout>

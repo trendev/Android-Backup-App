@@ -1,5 +1,6 @@
 package com.openclassrooms.fr.premierprojet;
 
+import android.app.ActivityManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
@@ -9,7 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Calendar;
-import java.util.Map;
+import java.util.List;
 
 public class PremiereActivite extends AppCompatActivity {
 
@@ -49,18 +50,19 @@ public class PremiereActivite extends AppCompatActivity {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
-    public void displayEnv(View v) {
+    public void displayProcess(View v) {
         final TextView textView = (TextView) findViewById(R.id.textView);
         assert textView != null;
         textView.setTextSize(10f);
 
         textView.setMovementMethod(new ScrollingMovementMethod());
 
-
-        Map<String, String> envs = System.getenv();
         StringBuilder sb = new StringBuilder();
-        for (Map.Entry<String, String> e : envs.entrySet())
-            sb.append(e.getKey()).append(" -- ").append(e.getValue()).append("\n");
+        ActivityManager am = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> pids = am.getRunningAppProcesses();
+
+        for (ActivityManager.RunningAppProcessInfo process : pids)
+            sb.append(process.pid).append(" -- ").append(process.processName).append("\n");
 
         textView.setText(sb.toString());
     }
