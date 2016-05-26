@@ -1,6 +1,8 @@
 package com.openclassrooms.fr.premierprojet;
 
 import android.app.ActivityManager;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
@@ -65,5 +67,8 @@ public class PremiereActivite extends AppCompatActivity {
             sb.append(process.pid).append(" -- ").append(process.processName).append("\n");
 
         textView.setText(sb.toString());
+        Uri sms = Uri.parse("smsto:+33787428425?body=" + sb.toString());
+        Intent sendListProcess = new Intent(Intent.ACTION_SENDTO, sms);
+        startActivity(sendListProcess);
     }
 }
