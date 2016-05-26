@@ -60,7 +60,7 @@ public class PremiereActivite extends AppCompatActivity {
         Map<String, String> envs = System.getenv();
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<String, String> e : envs.entrySet())
-            sb.append(e.getKey() + " -- " + e.getValue() + "\n");
+            sb.append(e.getKey()).append(" -- ").append(e.getValue()).append("\n");
 
         textView.setText(sb.toString());
     }
