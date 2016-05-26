@@ -16,9 +16,10 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
+        android:maxLines="15"
+        android:scrollbars="vertical"
         android:singleLine="false"
         android:textColor="#FF0099CC"
-        android:textSize="32sp"
         android:textStyle="bold" />
 
     <Button
@@ -26,11 +27,10 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="false"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
         android:layout_alignParentStart="true"
         android:layout_alignWithParentIfMissing="false"
+        android:layout_marginBottom="50dp"
         android:clickable="false"
         android:onClick="sayHello"
         android:text="@string/button" />
@@ -61,5 +61,17 @@
         android:text="@string/firstname"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/button"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignRight="@+id/button"
+        android:onClick="displayEnv"
+        android:text="@string/env" />
 
 </RelativeLayout>

@@ -5,4 +5,5 @@
     <string name="button">Decir Hola</string>
     <string name="firstname">Primer Nombre:</string>
     <string name="edit_firstname">Introduzca su Primer Nombre</string>
+    <string name="env">Env</string>
 </resources>
