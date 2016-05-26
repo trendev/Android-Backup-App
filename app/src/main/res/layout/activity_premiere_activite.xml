@@ -7,58 +7,56 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.openclassrooms.fr.premierprojet.PremiereActivite"
-    android:background="@android:color/holo_orange_light">
+    tools:context="com.openclassrooms.fr.premierprojet.PremiereActivite">
 
     <TextView
+        android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/textView"
-        android:textColor="@android:color/holo_blue_light"
-        android:textSize="32sp"
-        android:textStyle="bold"
+        android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"/>
+        android:textSize="32sp"
+        android:textStyle="bold" />
 
     <Button
+        android:id="@+id/button"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/button"
-        android:id="@+id/button"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="false"
         android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="false"
         android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
         android:layout_alignParentStart="true"
         android:layout_alignWithParentIfMissing="false"
         android:clickable="false"
-        android:onClick="sayHello"/>
+        android:onClick="sayHello"
+        android:text="@string/button" />
 
     <EditText
+        android:id="@+id/firstname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:inputType="textPersonName"
-        android:id="@+id/firstname"
-        android:ems="10"
+        android:layout_alignEnd="@+id/button"
         android:layout_alignParentTop="true"
         android:layout_alignRight="@+id/button"
-        android:layout_alignEnd="@+id/button"
-        android:textSize="14sp"
         android:layout_toEndOf="@+id/textView2"
         android:layout_toRightOf="@+id/textView2"
-        android:textColorHint="#2aa630"
+        android:ems="10"
+        android:hint="@string/edit_firstname"
+        android:inputType="textPersonName"
         android:singleLine="false"
-        android:hint="@string/edit_firstname" />
+        android:textColorHint="#2aa630"
+        android:textSize="14sp" />
 
     <TextView
+        android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/firstname"
-        android:id="@+id/textView2"
         android:layout_alignBaseline="@+id/firstname"
-        android:textStyle="bold"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:text="@string/firstname"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textStyle="bold" />
 
 </RelativeLayout>
