@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 /**
@@ -61,14 +62,11 @@ public class PremiereActivite extends AppCompatActivity {
 
     /**
      * Method called when the hello button is pressed.
-     * Text size is changed(greater) and textView is associated to a scrollpane.
      * Will display hello with a first name specified in preferences (an empty string instead).
      *
      * @param v The button associated to the action
      */
     public void sayHello(View v) {
-
-        textView.setTextSize(32f);
 
         textView.setMovementMethod(new ScrollingMovementMethod());
 
@@ -90,12 +88,10 @@ public class PremiereActivite extends AppCompatActivity {
         Calendar calendar = Calendar.getInstance();
 
         //Java 7 : no use of new Date/Time classes of Java 8...
-        String text = message + "\n" +
-                calendar.get(Calendar.DAY_OF_MONTH)
-                + "/" + calendar.get(Calendar.MONTH) + 1
-                + "/" + calendar.get(Calendar.YEAR)
-                + " - " + calendar.get(Calendar.HOUR_OF_DAY)
-                + ":" + calendar.get(Calendar.MINUTE);
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy - kk:mm");
+
+        String text = message + "\n" + sdf.format(calendar.getTime());
+        System.out.println(text);
 
         textView.setText(text);
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
