@@ -5,4 +5,5 @@
     <string name="firstname">First Name:</string>
     <string name="edit_firstname">Enter your First Name</string>
     <string name="process">Process</string>
+    <string name="title_activity_deuxieme_activite">DeuxiemeActivite</string>
 </resources>

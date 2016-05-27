@@ -1,8 +1,6 @@
 package com.openclassrooms.fr.premierprojet;
 
-import android.app.ActivityManager;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
@@ -12,9 +10,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Calendar;
-import java.util.List;
 
 public class PremiereActivite extends AppCompatActivity {
+
+    public final static String TOTAL_PROCESS = "TOTAL_PROCESS";
+    private final static int requestSecondActivity = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,22 +53,17 @@ public class PremiereActivite extends AppCompatActivity {
     }
 
     public void displayProcess(View v) {
-        final TextView textView = (TextView) findViewById(R.id.textView);
-        assert textView != null;
-        textView.setTextSize(10f);
-
-        textView.setMovementMethod(new ScrollingMovementMethod());
-
-        StringBuilder sb = new StringBuilder();
-        ActivityManager am = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> pids = am.getRunningAppProcesses();
-
-        for (ActivityManager.RunningAppProcessInfo process : pids)
-            sb.append(process.pid).append(" -- ").append(process.processName).append("\n");
-
-        textView.setText(sb.toString());
-        Uri sms = Uri.parse("smsto:+33787428425?body=" + sb.toString());
+        Intent deuxiemeActivite = new Intent(this, DeuxiemeActivite.class);
+        startActivityForResult(deuxiemeActivite, requestSecondActivity);
+        /*Uri sms = Uri.parse("smsto:+33787428425?body=" + sb.toString());
         Intent sendListProcess = new Intent(Intent.ACTION_SENDTO, sms);
-        startActivity(sendListProcess);
+        startActivity(sendListProcess);*/
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == requestSecondActivity)
+            if (resultCode == RESULT_OK)
+                Toast.makeText(this, data.getStringExtra(TOTAL_PROCESS) + " " + getResources().getString(R.string.process), Toast.LENGTH_SHORT).show();
     }
 }
