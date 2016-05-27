@@ -5,6 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
 
+/**
+ * Receiver declared in the manifest xml file
+ */
 public class MyReceiver extends BroadcastReceiver {
 
     @Override
