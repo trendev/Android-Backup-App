@@ -6,8 +6,8 @@ import android.content.Intent;
 import android.widget.Toast;
 
 /**
- * Receiver declared in the manifest xml file.
  * Will catch events related to SD Card Media and display a Toast.
+ * Intent filter are defined in the AndroidManifest xml file.
  */
 public class MyReceiver extends BroadcastReceiver {
 
