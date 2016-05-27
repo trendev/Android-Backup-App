@@ -63,6 +63,7 @@
         android:scrollbars="vertical"
         android:singleLine="false"
         android:textColor="#FF0099CC"
+        android:textSize="30sp"
         android:textStyle="bold" />
 
 </RelativeLayout>
