@@ -9,6 +9,11 @@ import android.widget.TextView;
 
 import java.util.List;
 
+/**
+ * This activity is used to display the list of the different process running on the device
+ *
+ * @author jsie
+ */
 public class DeuxiemeActivite extends AppCompatActivity {
 
     @Override

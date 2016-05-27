@@ -12,11 +12,28 @@ import android.widget.Toast;
 
 import java.util.Calendar;
 
+/**
+ * Main activity
+ *
+ * @author jsie
+ */
 public class PremiereActivite extends AppCompatActivity {
 
+    /**
+     * This string is the key used in the second activity where the number of running process
+     * is specified
+     */
     public final static String TOTAL_PROCESS = "TOTAL_PROCESS";
+
+    /**
+     * The value used to define the origin of the request towards the second activity
+     */
     private final static int requestSecondActivity = 1;
 
+
+    /**
+     * The central text zone where message are displayed
+     */
     private TextView textView;
 
     @Override
@@ -25,21 +42,30 @@ public class PremiereActivite extends AppCompatActivity {
         setContentView(R.layout.activity_premiere_activite);
 
         textView = (TextView) findViewById(R.id.textView);
+
         /**
          * restore the data saved in onRetainNonConfigurationInstance()
          * getLastCustomNonConfigurationInstance();
          */
 
-        /* Dynamic Broadcast
-        BroadcastReceiver br = new MyReceiver();
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Intent.ACTION_MEDIA_BAD_REMOVAL);
-        filter.addAction(Intent.ACTION_MEDIA_REMOVED);
-        filter.addAction(Intent.ACTION_MEDIA_MOUNTED);
-        filter.addDataScheme("file");
-        registerReceiver(br,filter);*/
+        /** Dynamic Broadcast
+         * BroadcastReceiver br = new MyReceiver();
+         * IntentFilter filter = new IntentFilter();
+         * filter.addAction(Intent.ACTION_MEDIA_BAD_REMOVAL);
+         * filter.addAction(Intent.ACTION_MEDIA_REMOVED);
+         * filter.addAction(Intent.ACTION_MEDIA_MOUNTED);
+         * filter.addDataScheme("file"); //mandatory or ACTION are not catched/understood
+         * registerReceiver(br,filter);
+         * */
     }
 
+    /**
+     * Method called when the hello button is pressed.
+     * Text size is changed(greater) and textView is associated to a scrollpane.
+     * Will display hello with a first name specified in preferences (an empty string instead).
+     *
+     * @param v The button associated to the action
+     */
     public void sayHello(View v) {
 
         textView.setTextSize(32f);
@@ -63,6 +89,7 @@ public class PremiereActivite extends AppCompatActivity {
 
         Calendar calendar = Calendar.getInstance();
 
+        //Java 7 : no use of new Date/Time classes of Java 8...
         String text = message + "\n" +
                 calendar.get(Calendar.DAY_OF_MONTH)
                 + "/" + calendar.get(Calendar.MONTH) + 1
@@ -74,6 +101,11 @@ public class PremiereActivite extends AppCompatActivity {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Will create a second activity and display the list of the running process
+     *
+     * @param v the Button associated to the action
+     */
     public void displayProcess(View v) {
         Intent deuxiemeActivite = new Intent(this, DeuxiemeActivite.class);
         startActivityForResult(deuxiemeActivite, requestSecondActivity);
@@ -89,11 +121,21 @@ public class PremiereActivite extends AppCompatActivity {
                 Toast.makeText(this, data.getStringExtra(TOTAL_PROCESS) + " " + getResources().getString(R.string.process), Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Will open a preferences form where the user will be able to define and store its first name.
+     *
+     * @param v the Button associated to the action
+     */
     public void openPreferences(View v) {
         Intent prefIntent = new Intent(this, PreferenceActivityExample.class);
         startActivity(prefIntent);
     }
 
+    /**
+     * Will clean the displayed text and remove the stored preferences.
+     *
+     * @param v the Button associated to the action
+     */
     public void clean(View v) {
         textView.setText("");
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
