@@ -30,6 +30,14 @@ public class PremiereActivite extends AppCompatActivity {
          * getLastCustomNonConfigurationInstance();
          */
 
+        /* Dynamic Broadcast
+        BroadcastReceiver br = new MyReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_MEDIA_BAD_REMOVAL);
+        filter.addAction(Intent.ACTION_MEDIA_REMOVED);
+        filter.addAction(Intent.ACTION_MEDIA_MOUNTED);
+        filter.addDataScheme("file");
+        registerReceiver(br,filter);*/
     }
 
     public void sayHello(View v) {

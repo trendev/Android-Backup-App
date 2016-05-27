@@ -2,7 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:title="@string/firstname">
         <EditTextPreference
-            android:dialogTitle="@string/edit_firstname"
+            android:dialogTitle="@string/preferences"
             android:key="@string/firstname_key"
             android:negativeButtonText="@android:string/cancel"
             android:positiveButtonText="@android:string/ok"

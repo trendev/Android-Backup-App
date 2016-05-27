@@ -7,8 +7,18 @@
         android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <receiver android:name=".MyReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_REMOVED" />
+                <action android:name="android.intent.action.MEDIA_MOUNTED" />
+                <action android:name="android.intent.action.MEDIA_BAD_REMOVAL" />
+
+                <data android:scheme="file" />
+            </intent-filter>
+        </receiver>
+
         <activity
             android:name=".PremiereActivite"
             android:alwaysRetainTaskState="true">
@@ -24,7 +34,6 @@
             android:label="@string/title_deuxieme_activite" />
         <activity
             android:name=".PreferenceActivityExample"
-            android:label="@string/firstname" />
+            android:label="@string/preferences" />
     </application>
-
 </manifest>
