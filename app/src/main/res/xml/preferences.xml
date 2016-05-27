@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/firstname">
+        <EditTextPreference
+            android:dialogTitle="@string/edit_firstname"
+            android:key="@string/firstname_key"
+            android:negativeButtonText="@android:string/cancel"
+            android:positiveButtonText="@android:string/ok"
+            android:summary="@string/edit_firstname"
+            android:title="@string/firstname" />
+    </PreferenceCategory>
+</PreferenceScreen>

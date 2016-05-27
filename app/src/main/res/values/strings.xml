@@ -5,5 +5,8 @@
     <string name="firstname">First Name:</string>
     <string name="edit_firstname">Enter your First Name</string>
     <string name="process">Process</string>
-    <string name="title_activity_deuxieme_activite">DeuxiemeActivite</string>
+    <string name="title_deuxieme_activite">SecondActivity</string>
+    <string name="preferences">Preferences</string>
+    <string name="firstname_key" translatable="false">firstname_key</string>
+    <string name="clean">Clean</string>
 </resources>

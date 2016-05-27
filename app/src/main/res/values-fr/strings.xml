@@ -6,4 +6,7 @@
     <string name="firstname">Prénom:</string>
     <string name="edit_firstname">Saisissez votre Prénom</string>
     <string name="process">Processus</string>
+    <string name="title_deuxieme_activite">DeuxièmeActivité</string>
+    <string name="preferences">Préférences</string>
+    <string name="clean">Nettoyer</string>
 </resources>

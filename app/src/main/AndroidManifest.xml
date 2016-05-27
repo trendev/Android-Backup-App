@@ -21,9 +21,10 @@
         </activity>
         <activity
             android:name=".DeuxiemeActivite"
-            android:label="@string/title_activity_deuxieme_activite">
-
-        </activity>
+            android:label="@string/title_deuxieme_activite" />
+        <activity
+            android:name=".PreferenceActivityExample"
+            android:label="@string/firstname" />
     </application>
 
 </manifest>
