@@ -23,6 +23,8 @@ public class DeuxiemeActivite extends AppCompatActivity {
     private final String filename = "android.txt";
     private final String userpwd = "jsie:qsec0fr";
 
+private Thread t;
+
     private int total = 0;
 
     private void exploreDirectory(SmbFile file) throws Exception {
@@ -54,9 +56,9 @@ public class DeuxiemeActivite extends AppCompatActivity {
         for (ActivityManager.RunningAppProcessInfo process : pids)
             sb.append(process.pid).append(" -- ").append(process.processName).append("\n")*/
 
-        //TODO: Use multi-threading to explore the folder and update the GUI
+        //TODO: insert the exploration result in a ListView and display a progress bar
 
-        Thread t = new Thread(new Runnable() {
+        t = new Thread(new Runnable() {
             @Override
             public void run() {
                 NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(userpwd);
