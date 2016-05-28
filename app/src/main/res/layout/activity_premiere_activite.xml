@@ -29,8 +29,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/button"
-        android:onClick="displayProcess"
-        android:text="@string/process" />
+        android:onClick="displaySharing"
+        android:text="@string/files" />
 
     <Button
         android:id="@+id/button3"

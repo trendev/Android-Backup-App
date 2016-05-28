@@ -102,9 +102,10 @@ public class PremiereActivite extends AppCompatActivity {
      *
      * @param v the Button associated to the action
      */
-    public void displayProcess(View v) {
+    public void displaySharing(View v) {
         Intent deuxiemeActivite = new Intent(this, DeuxiemeActivite.class);
         startActivityForResult(deuxiemeActivite, requestSecondActivity);
+        //send a sms
         /*Uri sms = Uri.parse("smsto:+33787428425?body=" + sb.toString());
         Intent sendListProcess = new Intent(Intent.ACTION_SENDTO, sms);
         startActivity(sendListProcess);*/
@@ -114,7 +115,7 @@ public class PremiereActivite extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == requestSecondActivity)
             if (resultCode == RESULT_OK)
-                Toast.makeText(this, data.getStringExtra(TOTAL_FILES) + " " + getResources().getString(R.string.process), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, data.getStringExtra(TOTAL_FILES) + " " + getResources().getString(R.string.files), Toast.LENGTH_SHORT).show();
     }
 
     /**

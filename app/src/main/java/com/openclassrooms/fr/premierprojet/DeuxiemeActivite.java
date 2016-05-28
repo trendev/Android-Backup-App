@@ -46,34 +46,47 @@ public class DeuxiemeActivite extends AppCompatActivity {
 
         final TextView textViewProcess = (TextView) findViewById(R.id.textViewProcess);
         assert textViewProcess != null;
-
         textViewProcess.setMovementMethod(new ScrollingMovementMethod());
 
         /*ActivityManager am = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
         List<ActivityManager.RunningAppProcessInfo> pids = am.getRunningAppProcesses();
 
         for (ActivityManager.RunningAppProcessInfo process : pids)
-            sb.append(process.pid).append(" -- ").append(process.processName).append("\n");*/
+            sb.append(process.pid).append(" -- ").append(process.processName).append("\n")*/
 
         //TODO: Use multi-threading to explore the folder and update the GUI
-        NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(userpwd);
-        SmbFile file = null;
-        try {
-            file = new SmbFile(path, auth);
-            sb.append(file.getCanonicalPath() + "\n");
-            exploreDirectory(file);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
-        textViewProcess.setText(sb.toString());
-        //provide a result to the main activity
-        Intent result = new Intent();
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(userpwd);
+                SmbFile file = null;
+                try {
+                    file = new SmbFile(path, auth);
+                    sb.append(file.getCanonicalPath() + "\n");
+                    exploreDirectory(file);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            textViewProcess.setText(sb.toString());
 
-        result.putExtra(PremiereActivite.TOTAL_FILES, Integer.toString(total));
-        setResult(RESULT_OK, result);
+                            Intent result = new Intent();
+
+                            result.putExtra(PremiereActivite.TOTAL_FILES, Integer.toString(total));
+                            setResult(RESULT_OK, result);
+                        }
+                    });
+                }
+            }
+        });
+
+        t.start();
+
     }
 
 }
