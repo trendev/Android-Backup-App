@@ -57,7 +57,7 @@ private Thread t;
             sb.append(process.pid).append(" -- ").append(process.processName).append("\n")*/
 
         //TODO: insert the exploration result in a ListView and display a progress bar
-//TODO: use an ArrayAdapter<SmbFile> and a SmbFileHolder
+//TODO: use an ArrayAdapter<SmbFile> and a SmbFileHolder + create a layout
         t = new Thread(new Runnable() {
             @Override
             public void run() {
