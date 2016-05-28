@@ -24,7 +24,7 @@ public class PremiereActivite extends AppCompatActivity {
      * This string is the key used in the second activity where the number of running process
      * is specified
      */
-    public final static String TOTAL_PROCESS = "TOTAL_PROCESS";
+    public final static String TOTAL_FILES = "TOTAL_FILES";
 
     /**
      * The value used to define the origin of the request towards the second activity
@@ -114,7 +114,7 @@ public class PremiereActivite extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == requestSecondActivity)
             if (resultCode == RESULT_OK)
-                Toast.makeText(this, data.getStringExtra(TOTAL_PROCESS) + " " + getResources().getString(R.string.process), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, data.getStringExtra(TOTAL_FILES) + " " + getResources().getString(R.string.process), Toast.LENGTH_SHORT).show();
     }
 
     /**
