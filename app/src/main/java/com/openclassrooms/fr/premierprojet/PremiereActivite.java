@@ -91,7 +91,7 @@ public class PremiereActivite extends AppCompatActivity {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy - kk:mm");
 
         String text = message + "\n" + sdf.format(calendar.getTime());
-        System.out.println(text);
+        //System.out.println(text);
 
         textView.setText(text);
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
