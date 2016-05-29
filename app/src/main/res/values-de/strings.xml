@@ -8,5 +8,10 @@
     <string name="title_deuxieme_activite">ZweiteAktivität</string>
     <string name="preferences">Vorlieben</string>
     <string name="clean">Sauber</string>
-    <string name="files">Dateien</string>
+    <string name="files">Dateien Samba</string>
+    <string name="edit_auth">Bearbeiten Sie die Authentifizierung</string>
+    <string name="path">Pfad</string>
+    <string name="edit_path">Bearbeiten Sie den Pfad</string>
+    <string name="auth">Authentifizierung</string>
+    <string name="server">Remote-Server</string>
 </resources>

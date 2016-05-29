@@ -1,12 +1,23 @@
 package com.openclassrooms.fr.premierprojet;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.text.method.ScrollingMovementMethod;
-import android.widget.TextView;
+import android.view.KeyEvent;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
-import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
 
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbFile;
@@ -18,29 +29,78 @@ import jcifs.smb.SmbFile;
  */
 public class DeuxiemeActivite extends AppCompatActivity {
 
-    private final StringBuilder sb = new StringBuilder();
-    private final String path = "smb://ylalsrv01wlan0/jsie-home/";
-    private final String filename = "android.txt";
-    private final String userpwd = "jsie:qsec0fr";
+    private static final Comparator<SmbFile> comparator = new SmbFileAdapter.SmbFileComparator();
+    private static final Intent result = new Intent();
+    private static String path;
+    private static String userpwdAuth;
+    private static NtlmPasswordAuthentication auth;
+    private static SmbFile rootFile = null;
+    private static SmbFile currentSmbFile = null;
+    private static ArrayAdapter<SmbFile> adapter;
+    private static int depth = 0;
+    private static int localTotal = 0;
+    private static int totalexp = 0;
+    private static ProgressBar progressBar = null;
 
     /**
-     * Thread where exploration will be processed
+     * Will explore the content of a folder.
+     * Should be executed in a Thread in order to improve the performances.
+     *
+     * @param file the folder to explore
+     * @throws Exception
      */
-    private Thread t;
+    private void exploreDirectory(final SmbFile file) throws Exception {
 
-    private int total = 0;
-
-    private void exploreDirectory(SmbFile file) throws Exception {
 
         if (file.canRead()) {
+
+            /**
+             * Position the current SmbFile and increment the depth counter if the position is in the root.
+             */
+            currentSmbFile = file;
+            if (!currentSmbFile.equals(rootFile))
+                depth++;
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    progressBar.setVisibility(View.VISIBLE);
+                    setTitle(file.getName());
+                }
+            });
+
             SmbFile[] files = file.listFiles();
 
-            for (SmbFile f : files) {
-                sb.append(f.getCanonicalPath() + "\n");
-                total++;
-                if (f.isDirectory() && !f.isHidden())
-                    exploreDirectory(f);
+            List<SmbFile> list = new ArrayList<>(files.length);
+
+            Collections.addAll(list, files);
+            Collections.sort(list, comparator);
+
+            /**
+             * localTotal must be reset during each exploration,
+             * otherwise if a folder is empty a wrong value will be displayed
+             */
+            localTotal = 0;
+            for (SmbFile smbFile : list) {
+                localTotal++;
+                totalexp++;
+                final SmbFile f = smbFile;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        adapter.add(f);
+                    }
+                });
             }
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(DeuxiemeActivite.this, Integer.valueOf(localTotal).toString() + " " + getResources().getString(R.string.files), Toast.LENGTH_SHORT).show();
+                    result.putExtra(PremiereActivite.TOTAL_FILES, Integer.toString(totalexp));
+                    progressBar.setVisibility(View.INVISIBLE);
+                }
+            });
         }
     }
 
@@ -49,49 +109,132 @@ public class DeuxiemeActivite extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_deuxieme_activite);
 
-        final TextView textViewProcess = (TextView) findViewById(R.id.textViewProcess);
-        assert textViewProcess != null;
-        textViewProcess.setMovementMethod(new ScrollingMovementMethod());
+        initPreferences();
 
-        /*ActivityManager am = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> pids = am.getRunningAppProcesses();
+        if (progressBar == null)
+            progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
-        for (ActivityManager.RunningAppProcessInfo process : pids)
-            sb.append(process.pid).append(" -- ").append(process.processName).append("\n")*/
+        progressBar.setVisibility(View.VISIBLE);
 
-        //TODO: insert the exploration result in a ListView and display a progress bar
-        //TODO: use an ArrayAdapter<SmbFile> and a SmbFileHolder
-        t = new Thread(new Runnable() {
+        final ListView listView = (ListView) findViewById(R.id.listView);
+        final List<SmbFile> smbFileList = new LinkedList<>();
+
+        adapter = new SmbFileAdapter(this, smbFileList);
+        listView.setAdapter(adapter);
+
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void run() {
-                NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(userpwd);
-                SmbFile file = null;
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                final SmbFile smbFile = adapter.getItem(i);
                 try {
-                    file = new SmbFile(path, auth);
-                    sb.append(file.getCanonicalPath() + "\n");
-                    exploreDirectory(file);
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
+                    if (smbFile.isDirectory() && !smbFile.isHidden()) {
+                        adapter.clear();
+                        Thread t = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    exploreDirectory(smbFile);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                        t.setDaemon(true);
+                        t.start();
+                    }
+
                 } catch (Exception e) {
                     e.printStackTrace();
-                } finally {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            textViewProcess.setText(sb.toString());
-
-                            Intent result = new Intent();
-
-                            result.putExtra(PremiereActivite.TOTAL_FILES, Integer.toString(total));
-                            setResult(RESULT_OK, result);
-                        }
-                    });
                 }
             }
         });
-
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                auth = new NtlmPasswordAuthentication(userpwdAuth);
+                try {
+                    rootFile = new SmbFile(path, auth);
+                    /**
+                     * If the remote folder has already been explored,
+                     * we restart from the latest explored folder.
+                     */
+                    exploreDirectory((currentSmbFile == null) ? rootFile : currentSmbFile);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        t.setDaemon(true);
         t.start();
 
+        setResult(RESULT_OK, result);
+
+    }
+
+    /**
+     * If the depth is greater than 0, will start to explore the parent folder
+     *
+     * @param keyCode the key code of the received event
+     * @param event   the received event
+     * @return true if no exit is performed
+     */
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            /**
+             * Should be 0 or less because depth counter won't be increment if root is the current folder
+             */
+            if (depth > 0) {
+                /**
+                 * Exploration will increment the depth counter, so it's necessary to go back higher
+                 * in get the right position!
+                 */
+                depth -= 2;
+                adapter.clear();
+                Thread t = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            exploreDirectory(new SmbFile(currentSmbFile.getParent(), auth));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                t.setDaemon(true);
+                t.start();
+
+                //will exit from the activity only if depth <= 0
+                return true;
+            }
+
+        }
+        /**
+         * Exit from the activity, reset the current position to the root folder
+         */
+        resetCountersAndPositions();
+        return super.onKeyDown(keyCode, event);
+    }
+
+    /**
+     * Reset the depth and total of explored files to zero and position the current pointer to null.
+     */
+    private void resetCountersAndPositions() {
+        currentSmbFile = null;
+        depth = 0;
+        totalexp = 0;
+    }
+
+    /**
+     * Initialize the application's preferences.
+     * By default, will use jsie authentification on ylalsrv01wlan0.
+     */
+    private void initPreferences() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        path = sharedPreferences.getString(getResources().getString(R.string.server_path), "smb://ylalsrv01wlan0/jsie-home/");
+        userpwdAuth = sharedPreferences.getString(getResources().getString(R.string.userpwd_auth), "jsie:qsec0fr");
     }
 
 }

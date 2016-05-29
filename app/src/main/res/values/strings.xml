@@ -4,9 +4,16 @@
     <string name="button">Say Hello</string>
     <string name="firstname">First Name:</string>
     <string name="edit_firstname">Enter your First Name</string>
-    <string name="files">Files</string>
+    <string name="files">Samba Files</string>
     <string name="title_deuxieme_activite">SecondActivity</string>
     <string name="preferences">Preferences</string>
     <string name="firstname_key" translatable="false">firstname_key</string>
     <string name="clean">Clean</string>
+    <string name="path">Path</string>
+    <string name="server_path" translatable="false">server_path</string>
+    <string name="edit_path">Edit the path</string>
+    <string name="userpwd_auth" translatable="false">userpwd_auth</string>
+    <string name="auth">Authentication</string>
+    <string name="edit_auth">Edit the authentication</string>
+    <string name="server">Remote-Server</string>
 </resources>

@@ -2,13 +2,28 @@
 Preferences Layout used in order to define a First Name into a local property
 -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory android:title="@string/firstname">
         <EditTextPreference
-            android:dialogTitle="@string/preferences"
+            android:dialogTitle="@string/firstname"
             android:key="@string/firstname_key"
             android:negativeButtonText="@android:string/cancel"
             android:positiveButtonText="@android:string/ok"
             android:summary="@string/edit_firstname"
             android:title="@string/firstname" />
+    <PreferenceCategory android:title="@string/server">
+        <EditTextPreference
+            android:dialogTitle="@string/path"
+            android:key="@string/server_path"
+            android:negativeButtonText="@android:string/cancel"
+            android:positiveButtonText="@android:string/ok"
+            android:summary="@string/edit_path"
+            android:title="@string/path" />
+        <EditTextPreference
+            android:dialogTitle="@string/auth"
+            android:key="@string/userpwd_auth"
+            android:negativeButtonText="@android:string/cancel"
+            android:positiveButtonText="@android:string/ok"
+            android:summary="@string/edit_auth"
+            android:title="@string/auth" />
+
     </PreferenceCategory>
 </PreferenceScreen>
