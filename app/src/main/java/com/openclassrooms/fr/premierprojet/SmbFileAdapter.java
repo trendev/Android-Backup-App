@@ -16,6 +16,7 @@ import jcifs.smb.SmbFile;
 
 /**
  * Created by jsie on 29/05/16.
+ * @author jsie
  */
 public class SmbFileAdapter extends ArrayAdapter<SmbFile> {
 
@@ -27,7 +28,7 @@ public class SmbFileAdapter extends ArrayAdapter<SmbFile> {
     }
 
     /**
-     * Format the size with the biggest binary unit.
+     * Format the size with the biggest binary unit ("B", "KB", "MB", "GB", "TB", "PB").
      *
      * @param size the size to format
      * @return the size with the biggest binary unit, cannot be null.
@@ -47,6 +48,16 @@ public class SmbFileAdapter extends ArrayAdapter<SmbFile> {
         return result;
     }
 
+    /**
+     * This method will display a SmbFile using the rendering layout defined in the resources.
+     * If the item has already been computed, the method will load the data contented inside.
+     * Otherwise, the method will create a new item.
+     *
+     * @param position    the position of the SmbFile
+     * @param convertView the view to display or a recycled view
+     * @param parent      the parent View
+     * @return the item to display
+     */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
@@ -81,6 +92,10 @@ public class SmbFileAdapter extends ArrayAdapter<SmbFile> {
         return convertView;
     }
 
+    /**
+     * This inner-class will be used in order to compare SmbFiles.
+     * Preferred Order : directory, file and then alphabetical order.
+     */
     static class SmbFileComparator implements Comparator<SmbFile> {
 
         @Override
@@ -99,6 +114,9 @@ public class SmbFileAdapter extends ArrayAdapter<SmbFile> {
         }
     }
 
+    /**
+     * This inner-class will be used by the ListView to store the remaining items.
+     */
     private class SmbFileHolder {
         public TextView file;
         public TextView size;
