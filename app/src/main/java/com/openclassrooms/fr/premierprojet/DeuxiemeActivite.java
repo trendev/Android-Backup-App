@@ -26,17 +26,26 @@ import jcifs.smb.SmbFile;
  */
 public class DeuxiemeActivite extends AppCompatActivity {
 
-    //TODO : define these fields as Application Preferences
+    //TODO : define these two fields as Application Preferences
     private static final String path = "smb://ylalsrv01wlan0/jsie-home/";
     private static final String userpwd = "jsie:qsec0fr";
     private static final Comparator<SmbFile> comparator = new SmbFileAdapter.SmbFileComparator();
+    private final static Intent result = new Intent();
     private static NtlmPasswordAuthentication auth;
     private static SmbFile rootFile = null;
     private static SmbFile currentSmbFile = null;
     private static ArrayAdapter<SmbFile> adapter;
     private static int depth = 0;
-    private int total = 0;
+    private static int localTotal = 0;
+    private static int totalexp = 0;
 
+    /**
+     * Will explore the content of a folder.
+     * Should be executed in a Thread in order to improve the performances.
+     *
+     * @param file the folder to explore
+     * @throws Exception
+     */
     private void exploreDirectory(final SmbFile file) throws Exception {
 
         if (file.canRead()) {
@@ -63,12 +72,13 @@ public class DeuxiemeActivite extends AppCompatActivity {
             Collections.sort(list, comparator);
 
             /**
-             * total must be reset during each exploration,
+             * localTotal must be reset during each exploration,
              * otherwise if a folder is empty a wrong value will be displayed
              */
-            total = 0;
+            localTotal = 0;
             for (SmbFile smbFile : list) {
-                total++;
+                localTotal++;
+                totalexp++;
                 final SmbFile f = smbFile;
                 runOnUiThread(new Runnable() {
                     @Override
@@ -81,7 +91,8 @@ public class DeuxiemeActivite extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(DeuxiemeActivite.this, Integer.valueOf(total).toString() + " " + getResources().getString(R.string.files), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DeuxiemeActivite.this, Integer.valueOf(localTotal).toString() + " " + getResources().getString(R.string.files), Toast.LENGTH_SHORT).show();
+                    result.putExtra(PremiereActivite.TOTAL_FILES, Integer.toString(totalexp));
                 }
             });
         }
@@ -102,11 +113,20 @@ public class DeuxiemeActivite extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                SmbFile smbFile = adapter.getItem(i);
+                final SmbFile smbFile = adapter.getItem(i);
                 try {
                     if (smbFile.isDirectory() && !smbFile.isHidden()) {
                         adapter.clear();
-                        exploreDirectory(smbFile);
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    exploreDirectory(smbFile);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }).start();
                     }
 
                 } catch (Exception e) {
@@ -114,7 +134,7 @@ public class DeuxiemeActivite extends AppCompatActivity {
                 }
             }
         });
-        //TODO: insert the exploration result in a ListView and display a progress bar
+        //TODO: Display a progress bar
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -128,31 +148,19 @@ public class DeuxiemeActivite extends AppCompatActivity {
                     exploreDirectory((currentSmbFile == null) ? rootFile : currentSmbFile);
                 } catch (Exception e) {
                     e.printStackTrace();
-                } finally {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            //GUI interactions
-                            //TODO : find something better to send to the main activity...
-                            Intent result = new Intent();
-
-                            result.putExtra(PremiereActivite.TOTAL_FILES, Integer.toString(total));
-                            setResult(RESULT_OK, result);
-                        }
-                    });
                 }
             }
         });
 
         t.start();
 
+        setResult(RESULT_OK, result);
+
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            System.out.println("KEYCODE_BACK detected");
-            System.out.println(currentSmbFile.getCanonicalPath() + "  --- DEPTH = " + depth);
             /**
              * Should be 0 or less because depth counter won't be increment if root is the current folder
              */
@@ -162,16 +170,24 @@ public class DeuxiemeActivite extends AppCompatActivity {
                  * in get the right position!
                  */
                 depth -= 2;
-                try {
-                    adapter.clear();
-                    exploreDirectory(new SmbFile(currentSmbFile.getParent(), auth));
-                } catch (Exception e) {
-                    finish();
-                }
+                adapter.clear();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            exploreDirectory(new SmbFile(currentSmbFile.getParent(), auth));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+                //don't quit the activity until depth is greater than 0
                 return true;
             }
 
         }
         return super.onKeyDown(keyCode, event);
     }
+
+
 }
