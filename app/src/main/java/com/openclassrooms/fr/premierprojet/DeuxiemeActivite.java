@@ -19,6 +19,7 @@ import jcifs.smb.SmbFile;
  */
 public class DeuxiemeActivite extends AppCompatActivity {
 
+    //TODO : define these fields as Application Preferences
     private final String path = "smb://ylalsrv01wlan0/jsie-home/";
     private final String userpwd = "jsie:qsec0fr";
     private final List<SmbFile> smbFileList = new LinkedList<>();
