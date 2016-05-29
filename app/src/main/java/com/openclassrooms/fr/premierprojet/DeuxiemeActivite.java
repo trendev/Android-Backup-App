@@ -175,8 +175,8 @@ public class DeuxiemeActivite extends AppCompatActivity {
     /**
      * If the depth is greater than 0, will start to explore the parent folder
      *
-     * @param keyCode
-     * @param event
+     * @param keyCode the key code of the received event
+     * @param event   the received event
      * @return true if no exit is performed
      */
     @Override
