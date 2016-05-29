@@ -9,4 +9,9 @@
     <string name="preferences">Préférences</string>
     <string name="clean">Nettoyer</string>
     <string name="files">Fichiers Samba</string>
+    <string name="edit_auth">Editer l\'authentification</string>
+    <string name="path">Chemin</string>
+    <string name="edit_path">Editer le chemin</string>
+    <string name="auth">Authentification</string>
+    <string name="server">Serveur Distant</string>
 </resources>

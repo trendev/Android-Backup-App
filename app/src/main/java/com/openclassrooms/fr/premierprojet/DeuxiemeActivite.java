@@ -1,7 +1,9 @@
 package com.openclassrooms.fr.premierprojet;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -29,9 +31,8 @@ public class DeuxiemeActivite extends AppCompatActivity {
 
     private static final Comparator<SmbFile> comparator = new SmbFileAdapter.SmbFileComparator();
     private static final Intent result = new Intent();
-    //TODO : define these two fields as Application Preferences
-    private static String path = "smb://ylalsrv01wlan0/jsie-home/";
-    private static String userpwd = "jsie:qsec0fr";
+    private static String path;
+    private static String userpwdAuth;
     private static NtlmPasswordAuthentication auth;
     private static SmbFile rootFile = null;
     private static SmbFile currentSmbFile = null;
@@ -108,6 +109,8 @@ public class DeuxiemeActivite extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_deuxieme_activite);
 
+        initPreferences();
+
         if (progressBar == null)
             progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
@@ -149,7 +152,7 @@ public class DeuxiemeActivite extends AppCompatActivity {
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
-                auth = new NtlmPasswordAuthentication(userpwd);
+                auth = new NtlmPasswordAuthentication(userpwdAuth);
                 try {
                     rootFile = new SmbFile(path, auth);
                     /**
@@ -169,6 +172,13 @@ public class DeuxiemeActivite extends AppCompatActivity {
 
     }
 
+    /**
+     * If the depth is greater than 0, will start to explore the parent folder
+     *
+     * @param keyCode
+     * @param event
+     * @return true if no exit is performed
+     */
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
@@ -207,10 +217,24 @@ public class DeuxiemeActivite extends AppCompatActivity {
         return super.onKeyDown(keyCode, event);
     }
 
+    /**
+     * Reset the depth and total of explored files to zero and position the current pointer to null.
+     */
     private void resetCountersAndPositions() {
         currentSmbFile = null;
         depth = 0;
         totalexp = 0;
+    }
+
+    /**
+     * Initialize the application's preferences.
+     * By default, will use jsie authentification on ylalsrv01wlan0.
+     */
+    private void initPreferences() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        path = sharedPreferences.getString(getResources().getString(R.string.server_path), "smb://ylalsrv01wlan0/jsie-home/");
+        userpwdAuth = sharedPreferences.getString(getResources().getString(R.string.userpwd_auth), "jsie:qsec0fr");
     }
 
 }

@@ -71,8 +71,6 @@ public class PremiereActivite extends AppCompatActivity {
 
         textView.setMovementMethod(new ScrollingMovementMethod());
 
-        SharedPreferences preferences = getPreferences(R.xml.preferences);
-
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         /**
