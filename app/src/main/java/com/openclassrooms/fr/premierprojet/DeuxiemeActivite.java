@@ -3,6 +3,7 @@ package com.openclassrooms.fr.premierprojet;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -22,18 +23,24 @@ public class DeuxiemeActivite extends AppCompatActivity {
     //TODO : define these fields as Application Preferences
     private final String path = "smb://ylalsrv01wlan0/jsie-home/";
     private final String userpwd = "jsie:qsec0fr";
-    private final List<SmbFile> smbFileList = new LinkedList<>();
     private int total = 0;
 
-    private void exploreDirectory(SmbFile file) throws Exception {
+    private void exploreDirectory(SmbFile file, final ArrayAdapter<SmbFile> adapter) throws Exception {
 
         if (file.canRead()) {
             SmbFile[] files = file.listFiles();
 
-            for (SmbFile f : files) {
+            for (SmbFile smbFile : files) {
                 total++;
-                if (f.isDirectory() && !f.isHidden())
-                    exploreDirectory(f);
+                final SmbFile f = smbFile;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        adapter.add(f);
+                    }
+                });
+                if (smbFile.isDirectory() && !smbFile.isHidden())
+                    exploreDirectory(smbFile, adapter);
             }
         }
     }
@@ -44,6 +51,7 @@ public class DeuxiemeActivite extends AppCompatActivity {
         setContentView(R.layout.activity_deuxieme_activite);
 
         final ListView listView = (ListView) findViewById(R.id.listView);
+        final List<SmbFile> smbFileList = new LinkedList<>();
 
         final SmbFileAdapter adapter = new SmbFileAdapter(this, smbFileList);
         listView.setAdapter(adapter);
@@ -60,7 +68,7 @@ public class DeuxiemeActivite extends AppCompatActivity {
                             adapter.add(file);
                         }
                     });
-                    exploreDirectory(file);
+                    exploreDirectory(file, adapter);
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
