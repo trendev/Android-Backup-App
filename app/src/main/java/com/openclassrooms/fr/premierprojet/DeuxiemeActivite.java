@@ -23,7 +23,7 @@ public class DeuxiemeActivite extends AppCompatActivity {
     private final String filename = "android.txt";
     private final String userpwd = "jsie:qsec0fr";
 
-private Thread t;
+    private Thread t;
 
     private int total = 0;
 
@@ -57,7 +57,7 @@ private Thread t;
             sb.append(process.pid).append(" -- ").append(process.processName).append("\n")*/
 
         //TODO: insert the exploration result in a ListView and display a progress bar
-//TODO: use an ArrayAdapter<SmbFile> and a SmbFileHolder + create a layout
+        //TODO: use an ArrayAdapter<SmbFile> and a SmbFileHolder + create a layout
         t = new Thread(new Runnable() {
             @Override
             public void run() {
