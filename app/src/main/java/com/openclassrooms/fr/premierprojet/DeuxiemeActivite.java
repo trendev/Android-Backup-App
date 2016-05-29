@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class DeuxiemeActivite extends AppCompatActivity {
     private static final String path = "smb://ylalsrv01wlan0/jsie-home/";
     private static final String userpwd = "jsie:qsec0fr";
     private static final Comparator<SmbFile> comparator = new SmbFileAdapter.SmbFileComparator();
-    private final static Intent result = new Intent();
+    private static final Intent result = new Intent();
     private static NtlmPasswordAuthentication auth;
     private static SmbFile rootFile = null;
     private static SmbFile currentSmbFile = null;
@@ -38,6 +39,7 @@ public class DeuxiemeActivite extends AppCompatActivity {
     private static int depth = 0;
     private static int localTotal = 0;
     private static int totalexp = 0;
+    private static ProgressBar progressBar = null;
 
     /**
      * Will explore the content of a folder.
@@ -47,6 +49,7 @@ public class DeuxiemeActivite extends AppCompatActivity {
      * @throws Exception
      */
     private void exploreDirectory(final SmbFile file) throws Exception {
+
 
         if (file.canRead()) {
 
@@ -60,6 +63,7 @@ public class DeuxiemeActivite extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    progressBar.setVisibility(View.VISIBLE);
                     setTitle(file.getName());
                 }
             });
@@ -93,6 +97,7 @@ public class DeuxiemeActivite extends AppCompatActivity {
                 public void run() {
                     Toast.makeText(DeuxiemeActivite.this, Integer.valueOf(localTotal).toString() + " " + getResources().getString(R.string.files), Toast.LENGTH_SHORT).show();
                     result.putExtra(PremiereActivite.TOTAL_FILES, Integer.toString(totalexp));
+                    progressBar.setVisibility(View.INVISIBLE);
                 }
             });
         }
@@ -102,6 +107,11 @@ public class DeuxiemeActivite extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_deuxieme_activite);
+
+        if (progressBar == null)
+            progressBar = (ProgressBar) findViewById(R.id.progressBar);
+
+        progressBar.setVisibility(View.VISIBLE);
 
         final ListView listView = (ListView) findViewById(R.id.listView);
         final List<SmbFile> smbFileList = new LinkedList<>();
@@ -117,7 +127,7 @@ public class DeuxiemeActivite extends AppCompatActivity {
                 try {
                     if (smbFile.isDirectory() && !smbFile.isHidden()) {
                         adapter.clear();
-                        new Thread(new Runnable() {
+                        Thread t = new Thread(new Runnable() {
                             @Override
                             public void run() {
                                 try {
@@ -126,7 +136,9 @@ public class DeuxiemeActivite extends AppCompatActivity {
                                     e.printStackTrace();
                                 }
                             }
-                        }).start();
+                        });
+                        t.setDaemon(true);
+                        t.start();
                     }
 
                 } catch (Exception e) {
@@ -134,7 +146,6 @@ public class DeuxiemeActivite extends AppCompatActivity {
                 }
             }
         });
-        //TODO: Display a progress bar
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -151,7 +162,7 @@ public class DeuxiemeActivite extends AppCompatActivity {
                 }
             }
         });
-
+        t.setDaemon(true);
         t.start();
 
         setResult(RESULT_OK, result);
@@ -171,7 +182,7 @@ public class DeuxiemeActivite extends AppCompatActivity {
                  */
                 depth -= 2;
                 adapter.clear();
-                new Thread(new Runnable() {
+                Thread t = new Thread(new Runnable() {
                     @Override
                     public void run() {
                         try {
@@ -180,14 +191,26 @@ public class DeuxiemeActivite extends AppCompatActivity {
                             e.printStackTrace();
                         }
                     }
-                }).start();
-                //don't quit the activity until depth is greater than 0
+                });
+                t.setDaemon(true);
+                t.start();
+
+                //will exit from the activity only if depth <= 0
                 return true;
             }
 
         }
+        /**
+         * Exit from the activity, reset the current position to the root folder
+         */
+        resetCountersAndPositions();
         return super.onKeyDown(keyCode, event);
     }
 
+    private void resetCountersAndPositions() {
+        currentSmbFile = null;
+        depth = 0;
+        totalexp = 0;
+    }
 
 }
