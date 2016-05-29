@@ -27,11 +27,11 @@ import jcifs.smb.SmbFile;
  */
 public class DeuxiemeActivite extends AppCompatActivity {
 
-    //TODO : define these two fields as Application Preferences
-    private static final String path = "smb://ylalsrv01wlan0/jsie-home/";
-    private static final String userpwd = "jsie:qsec0fr";
     private static final Comparator<SmbFile> comparator = new SmbFileAdapter.SmbFileComparator();
     private static final Intent result = new Intent();
+    //TODO : define these two fields as Application Preferences
+    private static String path = "smb://ylalsrv01wlan0/jsie-home/";
+    private static String userpwd = "jsie:qsec0fr";
     private static NtlmPasswordAuthentication auth;
     private static SmbFile rootFile = null;
     private static SmbFile currentSmbFile = null;
