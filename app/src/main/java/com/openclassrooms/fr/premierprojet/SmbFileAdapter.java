@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import java.util.Comparator;
 import java.util.List;
 
 import jcifs.smb.SmbException;
@@ -61,7 +62,7 @@ public class SmbFileAdapter extends ArrayAdapter<SmbFile> {
 
         SmbFile file = getItem(position);
 
-        holder.file.setText(file.getCanonicalPath());
+        holder.file.setText(file.getName());
         try {
             if (file.isDirectory()) {
                 holder.file.setTextColor(Color.BLUE);
@@ -76,6 +77,24 @@ public class SmbFileAdapter extends ArrayAdapter<SmbFile> {
 
         convertView.setTag(holder);
         return convertView;
+    }
+
+    static class SmbFileComparator implements Comparator<SmbFile> {
+
+        @Override
+        public int compare(SmbFile f1, SmbFile f2) {
+
+            try {
+                if (f1.isDirectory() && f2.isFile())
+                    return -1;
+
+                if (f1.isFile() && f2.isDirectory())
+                    return 1;
+            } catch (SmbException e) {
+                e.printStackTrace();
+            }
+            return f1.getName().compareTo(f2.getName());
+        }
     }
 
     private class SmbFileHolder {
