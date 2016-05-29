@@ -20,8 +20,10 @@ import jcifs.smb.SmbFile;
 public class SmbFileAdapter extends ArrayAdapter<SmbFile> {
 
     public SmbFileAdapter(Context context, List<SmbFile> list) {
-        //TODO : check if it's possible to specify another value than 0
-        super(context, 0, list);
+        /**
+         * Second argument can be 0.
+         */
+        super(context, R.layout.row_files, list);
     }
 
     /**
