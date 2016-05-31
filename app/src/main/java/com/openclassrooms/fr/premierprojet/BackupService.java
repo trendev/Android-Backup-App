@@ -14,22 +14,8 @@ public class BackupService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        int value = intent.getIntExtra(PremiereActivite.EXTRA_BACKUP_SERVICE, -2);
-        Log.i(PremiereActivite.EXTRA_BACKUP_SERVICE, "In BackupService - " + System.currentTimeMillis() + ", value = " + value);
-        value *= 2;
-        PremiereActivite.sharedValue += 100;
-        intent.putExtra(PremiereActivite.EXTRA_BACKUP_SERVICE, value);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.i(PremiereActivite.EXTRA_BACKUP_SERVICE, "BackupService dying...");
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(PremiereActivite.EXTRA_BACKUP_SERVICE, "BackupService starting...");
-        return super.onStartCommand(intent, flags, startId);
+        Log.i(PremiereActivite.EXTRA_BACKUP_SERVICE, "In BackupService - " + System.currentTimeMillis());
+        for (int i = 0; i < Integer.MAX_VALUE; i++) ;
+        Log.i(PremiereActivite.EXTRA_BACKUP_SERVICE, "Loop is over - " + System.currentTimeMillis());
     }
 }

@@ -1,6 +1,5 @@
 package com.openclassrooms.fr.premierprojet;
 
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -37,8 +36,6 @@ public class PremiereActivite extends AppCompatActivity {
     private final static int requestSecondActivity = 1;
 
     private final static int requestBackupActivity = 2;
-
-    public static int sharedValue = 1;
 
     /**
      * The central text zone where message are displayed
@@ -165,17 +162,11 @@ public class PremiereActivite extends AppCompatActivity {
 
         if (requestCode == requestBackupActivity) {
             if (data != null) {
-                int value = data.getIntExtra(EXTRA_BACKUP_SERVICE, -3);
-                Log.i(EXTRA_BACKUP_SERVICE, "in PremiereActivite - " + System.currentTimeMillis() +
-                        ", value = " + value +
-                        ", sharedValue = " + sharedValue);
-                sharedValue = value;
-                //data.putExtra(EXTRA_BACKUP_SERVICE, value * 3);
-
                 if (resultCode != RESULT_OK)
                     Log.w(EXTRA_BACKUP_SERVICE, "Something goes wrong...");
+                else
+                    Log.i(EXTRA_BACKUP_SERVICE, "** Backup Service finished with success **");
             }
-
         }
     }
 
@@ -187,17 +178,10 @@ public class PremiereActivite extends AppCompatActivity {
      * @param v the Button associated to the action
      */
     public void backup(View v) {
-        Intent intentBackup = new Intent(PremiereActivite.this, BackupService.class);
-        intentBackup.putExtra(EXTRA_BACKUP_SERVICE, sharedValue);
+        Intent intentBackup = new Intent(this, BackupService.class);
+        int value = 0;
+        intentBackup.putExtra(EXTRA_BACKUP_SERVICE, value);
 
-        PendingIntent pendingIntent = createPendingResult(requestBackupActivity, intentBackup, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        try {
-            pendingIntent.send();
-        } catch (PendingIntent.CanceledException e) {
-            e.printStackTrace();
-        }
-
-        //startService(intentBackup);
+        startService(intentBackup);
     }
 }
