@@ -16,7 +16,8 @@ import java.util.Calendar;
 
 /**
  * Main activity.
- * TODO: Should be very interesting to integrate the backup process in a Service
+ * TODO: Integrate the local medias backup in a Service
+ * TODO: Reduce the main textview and move under the backup button (avoid layer mess...)
  *
  * @author jsie
  */
