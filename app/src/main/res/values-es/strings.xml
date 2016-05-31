@@ -14,4 +14,5 @@
     <string name="edit_path">Editar la ruta</string>
     <string name="auth">Autenticación</string>
     <string name="server">Servidor Remoto</string>
+    <string name="backup">Apoyo</string>
 </resources>

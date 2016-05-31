@@ -17,7 +17,6 @@ import java.util.Calendar;
 /**
  * Main activity.
  * TODO: Integrate the local medias backup in a Service
- * TODO: Reduce the main textview and move under the backup button (avoid layer mess...)
  *
  * @author jsie
  */
@@ -147,5 +146,15 @@ public class PremiereActivite extends AppCompatActivity {
         if (keyCode == KeyEvent.KEYCODE_BACK)
             System.exit(0);
         return super.onKeyDown(keyCode, event);
+    }
+
+    /**
+     * Will backup the different device's medias on samba/cifs sharing.
+     * Not yet implemented.
+     *
+     * @param v the Button associated to the action
+     */
+    public void backup(View v) {
+
     }
 }

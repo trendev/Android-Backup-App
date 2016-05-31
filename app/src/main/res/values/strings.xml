@@ -16,4 +16,5 @@
     <string name="auth">Authentication</string>
     <string name="edit_auth">Edit the authentication</string>
     <string name="server">Remote-Server</string>
+    <string name="backup">Backup</string>
 </resources>
