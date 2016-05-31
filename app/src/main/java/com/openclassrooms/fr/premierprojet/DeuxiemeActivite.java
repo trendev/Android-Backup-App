@@ -97,7 +97,7 @@ public class DeuxiemeActivite extends AppCompatActivity {
                 @Override
                 public void run() {
                     Toast.makeText(DeuxiemeActivite.this, Integer.valueOf(localTotal).toString() + " " + getResources().getString(R.string.files), Toast.LENGTH_SHORT).show();
-                    result.putExtra(PremiereActivite.TOTAL_FILES, Integer.toString(totalexp));
+                    result.putExtra(PremiereActivite.EXTRA_TOTAL_FILES, Integer.toString(totalexp));
                     progressBar.setVisibility(View.INVISIBLE);
                 }
             });
@@ -108,8 +108,6 @@ public class DeuxiemeActivite extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_deuxieme_activite);
-
-        initPreferences();
 
         if (progressBar == null)
             progressBar = (ProgressBar) findViewById(R.id.progressBar);
@@ -152,7 +150,7 @@ public class DeuxiemeActivite extends AppCompatActivity {
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
-                auth = new NtlmPasswordAuthentication(userpwdAuth);
+                initPreferences();
                 try {
                     rootFile = new SmbFile(path, auth);
                     /**
@@ -227,14 +225,26 @@ public class DeuxiemeActivite extends AppCompatActivity {
     }
 
     /**
-     * Initialize the application's preferences.
-     * By default, will use jsie authentification on ylalsrv01wlan0.
+     * Initialize the samba/cifs connections with the application's preferences
+     * or use anonymous parameters instead.
+     * By default, will use jsie authentification on ylalsrv01
      */
     private void initPreferences() {
+
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        path = sharedPreferences.getString(getResources().getString(R.string.server_path), "smb://ylalsrv01/jsie-home/");
-        userpwdAuth = sharedPreferences.getString(getResources().getString(R.string.userpwd_auth), "jsie:qsec0fr");
+        //TODO : Get a value from preferences and lock the preferences if anonymous is not selected
+        boolean anonymous = false;
+
+        if (anonymous) {
+            auth = null;
+            path = null;
+            userpwdAuth = null;
+        } else {
+            path = sharedPreferences.getString(getResources().getString(R.string.server_path), "smb://ylalsrv01/jsie-home/");
+            userpwdAuth = sharedPreferences.getString(getResources().getString(R.string.userpwd_auth), "jsie:qsec0fr");
+            auth = new NtlmPasswordAuthentication(userpwdAuth);
+        }
     }
 
 }

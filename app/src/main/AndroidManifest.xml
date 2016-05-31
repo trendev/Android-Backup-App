@@ -13,7 +13,6 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <receiver android:name=".MyReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_REMOVED" />
@@ -40,5 +39,10 @@
         <activity
             android:name=".PreferenceActivityExample"
             android:label="@string/preferences" />
+
+        <service
+            android:name=".BackupService"
+            android:exported="false"></service>
     </application>
+
 </manifest>
