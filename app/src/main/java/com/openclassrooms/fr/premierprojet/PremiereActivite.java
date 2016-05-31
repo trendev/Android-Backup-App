@@ -15,7 +15,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 /**
- * Main activity
+ * Main activity.
+ * TODO: Should be very interesting to integrate the backup process in a Service
  *
  * @author jsie
  */
