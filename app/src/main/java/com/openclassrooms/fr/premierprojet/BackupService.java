@@ -26,4 +26,10 @@ public class BackupService extends IntentService {
         super.onDestroy();
         Log.i(PremiereActivite.EXTRA_BACKUP_SERVICE, "BackupService dying...");
     }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i(PremiereActivite.EXTRA_BACKUP_SERVICE, "BackupService starting...");
+        return super.onStartCommand(intent, flags, startId);
+    }
 }
