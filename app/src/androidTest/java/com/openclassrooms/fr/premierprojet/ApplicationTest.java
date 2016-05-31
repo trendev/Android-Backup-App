@@ -18,7 +18,7 @@ import jcifs.smb.SmbFileOutputStream;
 public class ApplicationTest extends ApplicationTestCase<Application> {
 
 
-    private final String path = "smb://ylalsrv01wlan0/jsie-home/";
+    private final String path = "smb://ylalsrv01/jsie-home/";
     private final String filename = "android.txt";
     private final String userpwd = "jsie:qsec0fr";
 

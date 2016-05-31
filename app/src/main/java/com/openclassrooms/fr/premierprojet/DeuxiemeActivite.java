@@ -233,7 +233,7 @@ public class DeuxiemeActivite extends AppCompatActivity {
     private void initPreferences() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        path = sharedPreferences.getString(getResources().getString(R.string.server_path), "smb://ylalsrv01wlan0/jsie-home/");
+        path = sharedPreferences.getString(getResources().getString(R.string.server_path), "smb://ylalsrv01/jsie-home/");
         userpwdAuth = sharedPreferences.getString(getResources().getString(R.string.userpwd_auth), "jsie:qsec0fr");
     }
 
