@@ -39,7 +39,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     //TODO: test the remote copy on samba-cifs server
     @LargeTest
     public void testRemoteCopy() throws Exception {
-        //TODO: get a set of local file and copy them on the remove server
+        //TODO: get a set of local file and copy them to the remove server
         NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(userpwd);
         SmbFile file = new SmbFile(path + filename, auth);
         if (!file.exists())

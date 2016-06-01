@@ -171,7 +171,6 @@ public class PremiereActivite extends AppCompatActivity {
     }
 
     /**
-     * TODO : implement backup method
      * Will backup the different device's medias on samba/cifs sharing.
      * Not yet implemented.
      *
