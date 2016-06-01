@@ -3,14 +3,21 @@ package com.openclassrooms.fr.premierprojet;
 import android.app.Application;
 import android.content.ContentProviderClient;
 import android.database.Cursor;
+import android.os.Environment;
 import android.provider.ContactsContract;
 import android.test.ApplicationTestCase;
+import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.Suppress;
 import android.util.Log;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -24,6 +31,8 @@ import jcifs.smb.SmbFileOutputStream;
 public class ApplicationTest extends ApplicationTestCase<Application> {
 
 
+    private final String TAG_EXPLORE_LOCAL_FILES = "EXPLORE_LOCAL_FILES";
+    private final String TAG_REMOTE_COPY = "REMOTE_COPY";
     private final String path = "smb://ylalsrv01/jsie-home/";
     private final String filename = "android.txt";
     private final String userpwd = "jsie:qsec0fr";
@@ -43,9 +52,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     }
 
     @Suppress
-    //TODO: test the remote copy on samba-cifs server
-    public void testRemoteCopy() throws Exception {
-        //TODO: get a set of local file and copy them to the remove server
+    public void testRemoteWrites() throws Exception {
         NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(userpwd);
         SmbFile file = new SmbFile(path + filename, auth);
         if (!file.exists())
@@ -77,7 +84,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     }
 
     @Suppress
-    public void testExploreFiles() throws Exception {
+    public void testExploreRemoteFiles() throws Exception {
         NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(userpwd);
         SmbFile file = new SmbFile(path, auth);
 
@@ -87,10 +94,10 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
         System.out.println(file.getCanonicalPath());
 
-        exploreDirectory(file);
+        exploreRemoteDirectory(file);
     }
 
-    private void exploreDirectory(SmbFile file) throws Exception {
+    private void exploreRemoteDirectory(SmbFile file) throws Exception {
         assertTrue(file.isDirectory());
 
         if (file.canRead()) {
@@ -99,7 +106,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
             for (SmbFile f : files) {
                 System.out.println(f.getCanonicalPath());
                 if (f.isDirectory() && !f.isHidden())
-                    exploreDirectory(f);
+                    exploreRemoteDirectory(f);
             }
         }
     }
@@ -152,5 +159,152 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         cursor.close();
     }
 
+    @Suppress
+    public void testExploreLocalFiles() throws Exception {
+        File rootFile = Environment.getExternalStorageDirectory();
 
+        Log.i(TAG_EXPLORE_LOCAL_FILES, rootFile.getCanonicalPath());
+
+        assertNotNull(rootFile);
+        assertTrue(rootFile.exists());
+        assertTrue(rootFile.isDirectory());
+        assertTrue(rootFile.canRead());
+        assertFalse(rootFile.isHidden());
+
+        List<File> parents = getLocalRootFolderParents(rootFile);
+
+        for (File p : parents)
+            Log.i(TAG_EXPLORE_LOCAL_FILES, "Parent : " + p.getCanonicalPath());
+
+        //exploreLocalDirectory(rootFile);
+    }
+
+    private void exploreLocalDirectory(File file) throws IOException {
+
+        assertNotNull(file);
+        assertTrue(file.exists());
+        assertTrue(file.isDirectory());
+        assertTrue(file.canRead());
+        assertFalse(file.isHidden());
+
+        for (File f : file.listFiles()) {
+            Log.i(TAG_EXPLORE_LOCAL_FILES, f.getCanonicalPath());
+            if (f.isDirectory() && !f.isHidden())
+                exploreLocalDirectory(f);
+        }
+
+    }
+
+    private List<File> getLocalRootFolderParents(File rootFile) {
+
+        List<File> parents = new ArrayList<>();
+
+        File parent = rootFile.getParentFile();
+
+        while (parent != null) {
+            parents.add(parent);
+            parent = parent.getParentFile();
+        }
+
+        Collections.reverse(parents);
+
+        return parents;
+    }
+
+    @Suppress
+    public void testRemoteFolderCreation() throws Exception {
+        String remoteFolderName = "backup_android/";
+
+        NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(userpwd);
+        SmbFile rootFolder = new SmbFile(path, auth);
+        assertTrue(rootFolder.canRead());
+        assertTrue(rootFolder.isDirectory());
+
+        SmbFile remoteFolder = new SmbFile(path + remoteFolderName, auth);
+        if (!remoteFolder.exists())
+            remoteFolder.mkdir();
+
+        assertTrue(remoteFolder.isDirectory());
+
+        //TODO: check if there is enough storage capacity...
+    }
+
+    @LargeTest
+    public void testRemoteCopy() throws Exception {
+
+        String remoteFolderName = "backup_android";
+
+        NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(userpwd);
+        SmbFile sharedFolder = new SmbFile(path, auth);
+        assertTrue(sharedFolder.canRead());
+        assertTrue(sharedFolder.isDirectory());
+
+        SmbFile backupFolder = new SmbFile(path + remoteFolderName, auth);
+        if (!backupFolder.exists())
+            backupFolder.mkdir();
+
+        assertTrue(backupFolder.isDirectory());
+
+        Log.i(TAG_REMOTE_COPY, "Backup folder opened/created : " + backupFolder.getCanonicalPath());
+
+        File localRootFolder = Environment.getExternalStorageDirectory();
+
+        assertTrue(localRootFolder.isDirectory());
+        assertTrue(localRootFolder.canRead());
+
+        Log.i(TAG_REMOTE_COPY, "Local folder opened : " + localRootFolder.getCanonicalPath());
+
+        //TODO: check if there is enough storage capacity...
+
+        SmbFile target = initBackupFolder(localRootFolder, backupFolder.getCanonicalPath(), auth);
+        if (!target.exists())
+            target.mkdir();
+
+        assertTrue(target.canWrite());
+
+        //TODO: copy the local files/dirs to the remove target
+    }
+
+
+    private boolean copy(File src, String canonicalPath, NtlmPasswordAuthentication auth) throws IOException {
+        Log.i(TAG_REMOTE_COPY, "Copy " + src.getCanonicalPath() + " ==> " + canonicalPath);
+        if (!src.canRead()) {
+            return false;
+        }
+
+        if (src.isDirectory()) {
+            SmbFile dir = new SmbFile(canonicalPath + src.getCanonicalPath(), auth);
+            if (!dir.exists())
+                dir.mkdir();
+        }
+
+        return true;
+    }
+
+    private SmbFile initBackupFolder(File localRootFolder, String backupFolderCanonicalPath, NtlmPasswordAuthentication auth) throws IOException {
+        List<File> parents = getLocalRootFolderParents(localRootFolder);
+
+        int before = parents.size();
+
+        assertNotNull(parents);
+        assertFalse(parents.isEmpty());
+
+        for (File root : File.listRoots())
+            parents.remove(root);
+
+        int after = parents.size();
+
+        assertFalse(parents.isEmpty());
+        assertTrue(before > after);
+
+        for (File p : parents) {
+            Log.i(TAG_REMOTE_COPY, "folder to create during init " + p.getCanonicalPath());
+            SmbFile dir = new SmbFile(backupFolderCanonicalPath + p.getCanonicalPath(), auth);
+            if (!dir.exists())
+                dir.mkdir();
+        }
+
+        return new SmbFile(backupFolderCanonicalPath + localRootFolder.getCanonicalPath(), auth);
+
+    }
 }

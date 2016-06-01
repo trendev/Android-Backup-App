@@ -33,9 +33,4 @@ public class ExampleUnitTest {
         assert (attributs & SmbFile.ATTR_READONLY) == 0;
         System.out.println("Attributes = " + attributs);
     }
-
-    @Test
-    public void testLocalFileExplorer() {
-
-    }
 }

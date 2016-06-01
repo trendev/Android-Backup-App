@@ -49,7 +49,7 @@ public class DeuxiemeActivite extends AppCompatActivity {
      * @param file the folder to explore
      * @throws Exception
      */
-    private void exploreDirectory(final SmbFile file) throws Exception {
+    private void exploreRemoteDirectory(final SmbFile file) throws Exception {
 
 
         if (file.canRead()) {
@@ -132,7 +132,7 @@ public class DeuxiemeActivite extends AppCompatActivity {
                             @Override
                             public void run() {
                                 try {
-                                    exploreDirectory(smbFile);
+                                    exploreRemoteDirectory(smbFile);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -157,7 +157,7 @@ public class DeuxiemeActivite extends AppCompatActivity {
                      * If the remote folder has already been explored,
                      * we restart from the latest explored folder.
                      */
-                    exploreDirectory((currentSmbFile == null) ? rootFile : currentSmbFile);
+                    exploreRemoteDirectory((currentSmbFile == null) ? rootFile : currentSmbFile);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -194,7 +194,7 @@ public class DeuxiemeActivite extends AppCompatActivity {
                     @Override
                     public void run() {
                         try {
-                            exploreDirectory(new SmbFile(currentSmbFile.getParent(), auth));
+                            exploreRemoteDirectory(new SmbFile(currentSmbFile.getParent(), auth));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
