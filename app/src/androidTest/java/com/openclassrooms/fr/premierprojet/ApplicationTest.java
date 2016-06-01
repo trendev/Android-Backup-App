@@ -226,7 +226,6 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
         assertTrue(remoteFolder.isDirectory());
 
-        //TODO: check if there is enough storage capacity...
     }
 
     @LargeTest
