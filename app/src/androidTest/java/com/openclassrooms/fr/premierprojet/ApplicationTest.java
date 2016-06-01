@@ -176,7 +176,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         for (File p : parents)
             Log.i(TAG_EXPLORE_LOCAL_FILES, "Parent : " + p.getCanonicalPath());
 
-        //exploreLocalDirectory(rootFile);
+        exploreLocalDirectory(rootFile);
     }
 
     private void exploreLocalDirectory(File file) throws IOException {
@@ -253,9 +253,14 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
         Log.i(TAG_REMOTE_COPY, "Local folder opened : " + localRootFolder.getCanonicalPath());
 
-        //TODO: check if there is enough storage capacity...
+        //TODO: check if there is enough storage capacity before doing anything...
+        
+initBackupFolder(localRootFolder, backupFolder.getCanonicalPath(), 
 
-        SmbFile target = initBackupFolder(localRootFolder, backupFolder.getCanonicalPath(), auth);
+SmbFile target = null;
+//TODO: target must be initialized!!! Manage the local root here??? Better do that during exploration like a standard directory?
+assertNotNull(target);
+
         if (!target.exists())
             target.mkdir();
 
@@ -265,7 +270,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     }
 
 
-    private boolean copy(File src, String canonicalPath, NtlmPasswordAuthentication auth) throws IOException {
+    private boolean remoteCopy(File src, String canonicalPath, NtlmPasswordAuthentication auth) throws IOException {
         Log.i(TAG_REMOTE_COPY, "Copy " + src.getCanonicalPath() + " ==> " + canonicalPath);
         if (!src.canRead()) {
             return false;
@@ -280,7 +285,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         return true;
     }
 
-    private SmbFile initBackupFolder(File localRootFolder, String backupFolderCanonicalPath, NtlmPasswordAuthentication auth) throws IOException {
+    private void initBackupFolder(File localRootFolder, String backupFolderCanonicalPath, NtlmPasswordAuthentication auth) throws IOException {
         List<File> parents = getLocalRootFolderParents(localRootFolder);
 
         int before = parents.size();
@@ -302,8 +307,5 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
             if (!dir.exists())
                 dir.mkdir();
         }
-
-        return new SmbFile(backupFolderCanonicalPath + localRootFolder.getCanonicalPath(), auth);
-
     }
 }
