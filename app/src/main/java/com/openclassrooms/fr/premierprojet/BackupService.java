@@ -12,7 +12,7 @@ public class BackupService extends IntentService {
         super(TAG);
     }
 
-    //TODO : Backup will be performed there in a dedicated Service
+    //TODO : Backup will be performed here in a dedicated Service
     @Override
     protected void onHandleIntent(Intent intent) {
         Log.i(PremiereActivite.EXTRA_BACKUP_SERVICE, "In BackupService - " + System.currentTimeMillis());
