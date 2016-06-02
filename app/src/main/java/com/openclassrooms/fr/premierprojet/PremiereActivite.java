@@ -154,7 +154,7 @@ public class PremiereActivite extends AppCompatActivity {
     }
 
     /**
-     * Will leave the application if Key Back is pressed on the main activity.
+     * Will leave the application if Key Back is pressed activated the main activity.
      * Threads will be interrupted because they are daemons.
      */
     @Override
@@ -179,24 +179,48 @@ public class PremiereActivite extends AppCompatActivity {
     }
 
     /**
-     * Will backup the different device's medias on samba/cifs sharing.
+     * Will backup the different device's medias activated samba/cifs sharing.
      * Not yet implemented.
      *
      * @param v the Button associated to the action
      */
-    public void backup(View v) {
-        Intent intentBackup = new Intent(this, BackupService.class);
+    public void backup(final View v) {
+        final int time = 5000;
+        if (BackupService.activated == false) {
+            BackupService.activated = true;
+            v.setEnabled(false);
+            final Intent intent = new Intent(this, BackupService.class);
 
-        //TODO : check if an extra is required...
-        intentBackup.putExtra(EXTRA_BACKUP_SERVICE, path);
+            startService(intent);
 
-        startService(intentBackup);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while (BackupService.activated) {
+                        try {
+                            Thread.sleep(time);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                            Log.e(EXTRA_BACKUP_SERVICE, e.getMessage());
+                            stopService(intent);
+                        }
+                    }
+                    BackupService.activated = false;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            v.setEnabled(true);
+                        }
+                    });
+                }
+            }).start();
+        }
     }
 
     /**
      * Initialize the samba/cifs connections with the application's preferences
      * or use anonymous parameters instead.
-     * By default, will use jsie authentification on ylalsrv01
+     * By default, will use jsie authentification activated ylalsrv01
      */
     void initPreferences() {
 

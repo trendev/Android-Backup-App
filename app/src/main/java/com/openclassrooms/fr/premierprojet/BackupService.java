@@ -23,45 +23,47 @@ public class BackupService extends IntentService {
 
     private final static String TAG = "BACKUP_SERVICE";
 
+    static boolean activated = false;
+
     public BackupService() {
         super(TAG);
     }
 
-    //TODO : Backup will be performed here in a dedicated Service
     @Override
     protected void onHandleIntent(Intent intent) {
         String remoteFolderName = "backup_android";
 
-        //TODO : disable the button
+        if (activated) {
+            try {
+                NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(PremiereActivite.userpwd);
 
-        try {
-
-            NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(PremiereActivite.userpwd);
-
-            SmbFile backupFolder = new SmbFile(PremiereActivite.path + remoteFolderName, auth);
-            if (!backupFolder.exists())
-                backupFolder.mkdir();
+                SmbFile backupFolder = new SmbFile(PremiereActivite.path + remoteFolderName, auth);
+                if (!backupFolder.exists())
+                    backupFolder.mkdir();
 
 
-            Log.i(TAG, "Backup folder opened/created : " + backupFolder.getCanonicalPath());
+                Log.i(TAG, "Backup folder opened/created : " + backupFolder.getCanonicalPath());
 
-            File localRootFolder = Environment.getExternalStorageDirectory();
+                File localRootFolder = Environment.getExternalStorageDirectory();
 
-            Log.i(TAG, "Local folder opened : " + localRootFolder.getCanonicalPath());
+                Log.i(TAG, "Local folder opened : " + localRootFolder.getCanonicalPath());
 
-            //TODO: check if there is enough storage capacity before doing anything...
+                //TODO: check if there is enough storage capacity before doing anything...
 
-            initBackupFolder(localRootFolder, backupFolder.getCanonicalPath(), auth);
+                initBackupFolder(localRootFolder, backupFolder.getCanonicalPath(), auth);
 
-            //TODO: add an index (database???) for resynchronisation
-            Log.i(TAG, "### START REMOTE COPY ###");
-            long start = System.currentTimeMillis();
-            remoteCopy(localRootFolder, backupFolder.getCanonicalPath(), auth);
-            long laptime = System.currentTimeMillis() - start;
-            Log.i(TAG, "### REMOTE COPY IS OVER ###");
-            Log.i(TAG, "### Finished in : " + TimeConverter.convertMilliSecondsToString(laptime) + " ###");
-        } catch (Exception e) {
-            //TODO : do something?
+                Log.i(TAG, "### START REMOTE COPY ###");
+                long start = System.currentTimeMillis();
+                remoteCopy(localRootFolder, backupFolder.getCanonicalPath(), auth);
+                long laptime = System.currentTimeMillis() - start;
+                Log.i(TAG, "### REMOTE COPY IS OVER ###");
+                Log.i(TAG, "### Finished in : " + TimeConverter.convertMilliSecondsToString(laptime) + " ###");
+
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage());
+            } finally {
+                activated = false;
+            }
         }
     }
 
@@ -85,7 +87,6 @@ public class BackupService extends IntentService {
         try {
             if (src.canRead()) {
                 SmbFile file = new SmbFile(backupFolderCanonicalPath + src.getCanonicalPath(), auth);
-                Log.i(TAG, "Copy " + (src.isDirectory() ? "DIR" : "FILE") + " " + src.getCanonicalPath() + " ==> " + file.getCanonicalPath());
 
                 if (src.isDirectory()) {
                     if (!file.exists())
@@ -93,12 +94,14 @@ public class BackupService extends IntentService {
                     for (File f : src.listFiles())
                         remoteCopy(f, backupFolderCanonicalPath, auth);
                 }
+
                 if (src.isFile()) {
-                    if (!file.exists())
+                    if (!file.exists()) {
                         file.createNewFile();
-                    copy(src, file);
+                        copy(src, file);
+                    } else if (src.lastModified() > file.lastModified())
+                        copy(src, file);
                 }
-                Log.i(TAG, "Copy " + (src.isDirectory() ? "DIR" : "FILE") + " " + src.getCanonicalPath() + " : [ OK ] ");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -110,13 +113,13 @@ public class BackupService extends IntentService {
     }
 
     private void copy(File src, SmbFile trg) throws IOException {
+        Log.i(TAG, "Copy " + (src.isDirectory() ? "DIR" : "FILE") + " " + src.getCanonicalPath() + " ==> " + trg.getCanonicalPath());
 
         FileInputStream in = null;
         OutputStream out = null;
 
         try {
             if (src.canRead() && trg.canWrite()) {
-                //TODO: implement an adaptive buffer?
                 //Block size in Bytes:
                 //4096, 8192, 16384, 32768, 65536
                 byte[] buffer = new byte[32768];
@@ -130,6 +133,7 @@ public class BackupService extends IntentService {
                     total += size;
                 }
                 Log.i(TAG, SmbFileAdapter.formatSize(total) + " copied");
+                Log.i(TAG, "Copy " + (src.isDirectory() ? "DIR" : "FILE") + " " + src.getCanonicalPath() + " : [ OK ] ");
             }
         } catch (SmbException | FileNotFoundException e) {
             e.printStackTrace();

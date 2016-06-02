@@ -15,7 +15,7 @@ import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
 
 /**
- * Created by jsie on 29/05/16.
+ * Created by jsie activated 29/05/16.
  * @author jsie
  */
 public class SmbFileAdapter extends ArrayAdapter<SmbFile> {

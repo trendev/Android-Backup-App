@@ -20,7 +20,7 @@ import java.util.List;
 import jcifs.smb.SmbFile;
 
 /**
- * This activity is used to display the list of the different process running on the device
+ * This activity is used to display the list of the different process running activated the device
  *
  * @author jsie
  */
