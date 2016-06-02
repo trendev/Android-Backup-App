@@ -1,9 +1,7 @@
 package com.openclassrooms.fr.premierprojet;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -19,7 +17,6 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
-import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbFile;
 
 /**
@@ -31,9 +28,6 @@ public class DeuxiemeActivite extends AppCompatActivity {
 
     private static final Comparator<SmbFile> comparator = new SmbFileAdapter.SmbFileComparator();
     private static final Intent result = new Intent();
-    private static String path;
-    private static String userpwdAuth;
-    private static NtlmPasswordAuthentication auth;
     private static SmbFile rootFile = null;
     private static SmbFile currentSmbFile = null;
     private static ArrayAdapter<SmbFile> adapter;
@@ -150,9 +144,8 @@ public class DeuxiemeActivite extends AppCompatActivity {
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
-                initPreferences();
                 try {
-                    rootFile = new SmbFile(path, auth);
+                    rootFile = new SmbFile(PremiereActivite.path, PremiereActivite.auth);
                     /**
                      * If the remote folder has already been explored,
                      * we restart from the latest explored folder.
@@ -194,7 +187,7 @@ public class DeuxiemeActivite extends AppCompatActivity {
                     @Override
                     public void run() {
                         try {
-                            exploreRemoteDirectory(new SmbFile(currentSmbFile.getParent(), auth));
+                            exploreRemoteDirectory(new SmbFile(currentSmbFile.getParent(), PremiereActivite.auth));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -224,27 +217,6 @@ public class DeuxiemeActivite extends AppCompatActivity {
         totalexp = 0;
     }
 
-    /**
-     * Initialize the samba/cifs connections with the application's preferences
-     * or use anonymous parameters instead.
-     * By default, will use jsie authentification on ylalsrv01
-     */
-    private void initPreferences() {
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-        //TODO : Get a value from preferences and lock the preferences if anonymous is not selected
-        boolean anonymous = false;
-
-        if (anonymous) {
-            auth = null;
-            path = null;
-            userpwdAuth = null;
-        } else {
-            path = sharedPreferences.getString(getResources().getString(R.string.server_path), "smb://ylalsrv01/jsie-home/");
-            userpwdAuth = sharedPreferences.getString(getResources().getString(R.string.userpwd_auth), "jsie:qsec0fr");
-            auth = new NtlmPasswordAuthentication(userpwdAuth);
-        }
-    }
 
 }

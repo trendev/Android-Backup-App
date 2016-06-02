@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import fr.yla.misc.TimeConverter;
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
@@ -261,16 +262,21 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
         initBackupFolder(localRootFolder, backupFolder.getCanonicalPath(), auth);
 
-        //TODO: copy the local files/dirs to the remove target
+        //TODO: add an index (database???) for resynchronisation
+        Log.i(TAG_REMOTE_COPY, "### START REMOTE COPY ###");
+        long start = System.currentTimeMillis();
         remoteCopy(localRootFolder, backupFolder.getCanonicalPath(), auth);
+        long laptime = System.currentTimeMillis() - start;
+        Log.i(TAG_REMOTE_COPY, "### REMOTE COPY IS OVER ###");
+        Log.i(TAG_REMOTE_COPY, "### Finished in : " + TimeConverter.convertMilliSecondsToString(laptime) + " ###");
     }
 
 
     private void remoteCopy(File src, String backupFolderCanonicalPath, NtlmPasswordAuthentication auth) {
         try {
-            Log.i(TAG_REMOTE_COPY, "Copy " + (src.isDirectory() ? "DIR" : "FILE") + " " + src.getCanonicalPath() + " ==> " + backupFolderCanonicalPath);
             if (src.canRead()) {
                 SmbFile file = new SmbFile(backupFolderCanonicalPath + src.getCanonicalPath(), auth);
+                Log.i(TAG_REMOTE_COPY, "Copy " + (src.isDirectory() ? "DIR" : "FILE") + " " + src.getCanonicalPath() + " ==> " + file.getCanonicalPath());
 
                 if (src.isDirectory()) {
                     if (!file.exists())
@@ -283,11 +289,15 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
                         file.createNewFile();
                     copy(src, file);
                 }
+                Log.i(TAG_REMOTE_COPY, "Copy " + (src.isDirectory() ? "DIR" : "FILE") + " " + src.getCanonicalPath() + " : [ OK ] ");
             }
         } catch (IOException e) {
             e.printStackTrace();
             Log.e(TAG_REMOTE_COPY, e.getMessage());
+            Log.e(TAG_REMOTE_COPY, "Copy " + (src.isDirectory() ? "DIR" : "FILE") + " " + src.getName() + " : [ FAILED ] ");
         }
+
+
     }
 
     private void copy(File src, SmbFile trg) throws IOException {
@@ -297,19 +307,20 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
         try {
             if (src.canRead() && trg.canWrite()) {
-                //Block size : 4KB, 8KB, 16KB, 32KB
-                //4096, 8192, 16384, 32768
-                byte[] buffer = new byte[4096];
-                int size = 0;
+                //TODO: implement an adaptive buffer?
+                //Block size in Bytes:
+                //4096, 8192, 16384, 32768, 65536
+                byte[] buffer = new byte[32768];
+                int size, total = 0;
 
                 in = new FileInputStream(src);
                 out = trg.getOutputStream();
 
-                //TODO : something to solve
-                while ((size = in.read(buffer)) != 1) {
+                while ((size = in.read(buffer)) != -1) {
                     out.write(buffer, 0, size);
-                    Log.i(TAG_REMOTE_COPY, size + "B copied");
+                    total += size;
                 }
+                Log.i(TAG_REMOTE_COPY, SmbFileAdapter.formatSize(total) + " copied");
             }
         } catch (SmbException | FileNotFoundException e) {
             e.printStackTrace();

@@ -15,6 +15,8 @@ import android.widget.Toast;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import jcifs.smb.NtlmPasswordAuthentication;
+
 /**
  * Main activity.
  *
@@ -37,6 +39,10 @@ public class PremiereActivite extends AppCompatActivity {
 
     private final static int requestBackupActivity = 2;
 
+    static String path;
+    static String userpwd;
+    static NtlmPasswordAuthentication auth;
+
     /**
      * The central text zone where message are displayed
      */
@@ -48,6 +54,8 @@ public class PremiereActivite extends AppCompatActivity {
         setContentView(R.layout.activity_premiere_activite);
 
         textView = (TextView) findViewById(R.id.textView);
+
+        initPreferences();
 
         /*Log.i("HOST = ", Build.HOST);
         Log.i("DEVICE = ",Build.DEVICE);
@@ -178,9 +186,33 @@ public class PremiereActivite extends AppCompatActivity {
      */
     public void backup(View v) {
         Intent intentBackup = new Intent(this, BackupService.class);
-        int value = 0;
-        intentBackup.putExtra(EXTRA_BACKUP_SERVICE, value);
+
+        //TODO : check if an extra is required...
+        intentBackup.putExtra(EXTRA_BACKUP_SERVICE, path);
 
         startService(intentBackup);
+    }
+
+    /**
+     * Initialize the samba/cifs connections with the application's preferences
+     * or use anonymous parameters instead.
+     * By default, will use jsie authentification on ylalsrv01
+     */
+    void initPreferences() {
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        //TODO : Get a value from preferences and lock the preferences if anonymous is not selected
+        boolean anonymous = false;
+
+        if (anonymous) {
+            PremiereActivite.auth = null;
+            PremiereActivite.path = null;
+            PremiereActivite.userpwd = null;
+        } else {
+            PremiereActivite.path = sharedPreferences.getString(getResources().getString(R.string.server_path), "smb://ylalsrv01/jsie-home/");
+            PremiereActivite.userpwd = sharedPreferences.getString(getResources().getString(R.string.userpwd_auth), "jsie:qsec0fr");
+            PremiereActivite.auth = new NtlmPasswordAuthentication(PremiereActivite.userpwd);
+        }
     }
 }
