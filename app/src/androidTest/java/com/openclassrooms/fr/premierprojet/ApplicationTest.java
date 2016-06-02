@@ -254,12 +254,12 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         Log.i(TAG_REMOTE_COPY, "Local folder opened : " + localRootFolder.getCanonicalPath());
 
         //TODO: check if there is enough storage capacity before doing anything...
-        
-initBackupFolder(localRootFolder, backupFolder.getCanonicalPath(), 
 
-SmbFile target = null;
-//TODO: target must be initialized!!! Manage the local root here??? Better do that during exploration like a standard directory?
-assertNotNull(target);
+        initBackupFolder(localRootFolder, backupFolder.getCanonicalPath(), auth);
+
+        SmbFile target = null;
+        //TODO: target must be initialized!!! Manage the local root here??? Better do that during exploration like a standard directory?
+        assertNotNull(target);
 
         if (!target.exists())
             target.mkdir();
