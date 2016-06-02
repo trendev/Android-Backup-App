@@ -11,7 +11,10 @@ import android.test.suitebuilder.annotation.Suppress;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -22,6 +25,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import jcifs.smb.NtlmPasswordAuthentication;
+import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
 import jcifs.smb.SmbFileOutputStream;
 
@@ -257,32 +261,65 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
         initBackupFolder(localRootFolder, backupFolder.getCanonicalPath(), auth);
 
-        SmbFile target = null;
-        //TODO: target must be initialized!!! Manage the local root here??? Better do that during exploration like a standard directory?
-        assertNotNull(target);
-
-        if (!target.exists())
-            target.mkdir();
-
-        assertTrue(target.canWrite());
-
         //TODO: copy the local files/dirs to the remove target
+        remoteCopy(localRootFolder, backupFolder.getCanonicalPath(), auth);
     }
 
 
-    private boolean remoteCopy(File src, String canonicalPath, NtlmPasswordAuthentication auth) throws IOException {
-        Log.i(TAG_REMOTE_COPY, "Copy " + src.getCanonicalPath() + " ==> " + canonicalPath);
-        if (!src.canRead()) {
-            return false;
-        }
+    private void remoteCopy(File src, String backupFolderCanonicalPath, NtlmPasswordAuthentication auth) {
+        try {
+            Log.i(TAG_REMOTE_COPY, "Copy " + (src.isDirectory() ? "DIR" : "FILE") + " " + src.getCanonicalPath() + " ==> " + backupFolderCanonicalPath);
+            if (src.canRead()) {
+                SmbFile file = new SmbFile(backupFolderCanonicalPath + src.getCanonicalPath(), auth);
 
-        if (src.isDirectory()) {
-            SmbFile dir = new SmbFile(canonicalPath + src.getCanonicalPath(), auth);
-            if (!dir.exists())
-                dir.mkdir();
+                if (src.isDirectory()) {
+                    if (!file.exists())
+                        file.mkdir();
+                    for (File f : src.listFiles())
+                        remoteCopy(f, backupFolderCanonicalPath, auth);
+                }
+                if (src.isFile()) {
+                    if (!file.exists())
+                        file.createNewFile();
+                    copy(src, file);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e(TAG_REMOTE_COPY, e.getMessage());
         }
+    }
 
-        return true;
+    private void copy(File src, SmbFile trg) throws IOException {
+
+        FileInputStream in = null;
+        OutputStream out = null;
+
+        try {
+            if (src.canRead() && trg.canWrite()) {
+                //Block size : 4KB, 8KB, 16KB, 32KB
+                //4096, 8192, 16384, 32768
+                byte[] buffer = new byte[4096];
+                int size = 0;
+
+                in = new FileInputStream(src);
+                out = trg.getOutputStream();
+
+                //TODO : something to solve
+                while ((size = in.read(buffer)) != 1) {
+                    out.write(buffer, 0, size);
+                    Log.i(TAG_REMOTE_COPY, size + "B copied");
+                }
+            }
+        } catch (SmbException | FileNotFoundException e) {
+            e.printStackTrace();
+            Log.e(TAG_REMOTE_COPY, e.getMessage());
+        } finally {
+            if (in != null)
+                in.close();
+            if (out != null)
+                out.close();
+        }
     }
 
     private void initBackupFolder(File localRootFolder, String backupFolderCanonicalPath, NtlmPasswordAuthentication auth) throws IOException {
