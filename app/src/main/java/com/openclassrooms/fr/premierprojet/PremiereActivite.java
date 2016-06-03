@@ -227,7 +227,7 @@ public class PremiereActivite extends AppCompatActivity {
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        //TODO : Get a value from preferences and lock the preferences if anonymous is not selected
+        //TODO : Anonymous mode, Add a checkbox in preferences
         boolean anonymous = false;
 
         if (anonymous) {

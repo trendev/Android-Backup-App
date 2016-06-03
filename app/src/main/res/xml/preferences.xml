@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-Preferences Layout used in order to define a First Name into a local property
--->
+<?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <EditTextPreference
         android:dialogTitle="@string/firstname"
