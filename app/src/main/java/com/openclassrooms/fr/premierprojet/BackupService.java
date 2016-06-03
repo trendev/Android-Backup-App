@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.Environment;
 import android.util.Log;
 
+import com.openclassrooms.fr.premierprojet.beans.ActivationProperty;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -21,10 +23,9 @@ import jcifs.smb.SmbFile;
 
 public class BackupService extends IntentService {
 
+    //TODO: comment the ActivationProperty usage...
+    static final ActivationProperty activationProperty = new ActivationProperty();
     private final static String TAG = "BACKUP_SERVICE";
-
-//TODO: Try to wrap it in a BooleanProperty
-    static boolean activated = false;
 
     public BackupService() {
         super(TAG);
@@ -34,7 +35,8 @@ public class BackupService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         String remoteFolderName = "backup_android";
 
-        if (activated) {
+        if (!activationProperty.isActivated()) {
+            activationProperty.setActivated(true);
             try {
                 NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(PremiereActivite.userpwd);
 
@@ -63,7 +65,7 @@ public class BackupService extends IntentService {
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage());
             } finally {
-                activated = false;
+                activationProperty.setActivated(false);
             }
         }
     }

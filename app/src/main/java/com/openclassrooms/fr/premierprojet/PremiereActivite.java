@@ -12,6 +12,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -185,36 +187,20 @@ public class PremiereActivite extends AppCompatActivity {
      * @param v the Button associated to the action
      */
     public void backup(final View v) {
-        final int time = 5000;
-        if (BackupService.activated == false) {
-            BackupService.activated = true;
-            v.setEnabled(false);
-            final Intent intent = new Intent(this, BackupService.class);
 
-            startService(intent);
-
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while (BackupService.activated) {
-                        try {
-                            Thread.sleep(time);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                            Log.e(EXTRA_BACKUP_SERVICE, e.getMessage());
-                            stopService(intent);
-                        }
+        BackupService.activationProperty.addActivatedPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(final PropertyChangeEvent propertyChangeEvent) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        v.setEnabled((Boolean) propertyChangeEvent.getOldValue());
                     }
-                    BackupService.activated = false;
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            v.setEnabled(true);
-                        }
-                    });
-                }
-            }).start();
-        }
+                });
+            }
+        });
+        final Intent intent = new Intent(this, BackupService.class);
+        startService(intent);
     }
 
     /**
