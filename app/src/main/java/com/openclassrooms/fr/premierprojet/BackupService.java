@@ -23,6 +23,7 @@ public class BackupService extends IntentService {
 
     private final static String TAG = "BACKUP_SERVICE";
 
+//TODO: Try to wrap it in a BooleanProperty
     static boolean activated = false;
 
     public BackupService() {
