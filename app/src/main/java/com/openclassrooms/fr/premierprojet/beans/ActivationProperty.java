@@ -1,10 +1,18 @@
 package com.openclassrooms.fr.premierprojet.beans;
 
+import android.content.Intent;
+import android.view.View;
+
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
 /**
- * Created by jsie on 03/06/16.
+ * This Property is a Java Bean used between the main activity (PremiereActivite) and the BackupService.
+ * @see com.openclassrooms.fr.premierprojet.PremiereActivite#backup(View)
+ * @see com.openclassrooms.fr.premierprojet.BackupService#activationProperty
+ * @see com.openclassrooms.fr.premierprojet.BackupService#onHandleIntent(Intent)
+ * Created on 03/06/16.
+ * @author jsie
  */
 public class ActivationProperty {
     private boolean activated;

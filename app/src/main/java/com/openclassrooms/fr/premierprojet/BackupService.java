@@ -23,7 +23,7 @@ import jcifs.smb.SmbFile;
 
 public class BackupService extends IntentService {
 
-    //TODO: comment the ActivationProperty usage...
+    //The property which link the Backup button status and the status of this service
     static final ActivationProperty activationProperty = new ActivationProperty();
     private final static String TAG = "BACKUP_SERVICE";
 
@@ -31,6 +31,14 @@ public class BackupService extends IntentService {
         super(TAG);
     }
 
+    /**
+     * <pre>
+     * Will handle the backup actions.
+     * Button is disabled when the service is running, so shouldn't handle more than one intent...
+     * </pre>
+     *
+     * @param intent the Intent provided by the main activity. Doesn't contain a relevant Extra/Data.
+     */
     @Override
     protected void onHandleIntent(Intent intent) {
         String remoteFolderName = "backup_android";
@@ -40,6 +48,7 @@ public class BackupService extends IntentService {
             try {
                 NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(PremiereActivite.userpwd);
 
+                //open the remote folder on samba/cifs server
                 SmbFile backupFolder = new SmbFile(PremiereActivite.path + remoteFolderName, auth);
                 if (!backupFolder.exists())
                     backupFolder.mkdir();
@@ -47,20 +56,32 @@ public class BackupService extends IntentService {
 
                 Log.i(TAG, "Backup folder opened/created : " + backupFolder.getCanonicalPath());
 
+                //get the root folder (usually from the sdcard device)
                 File localRootFolder = Environment.getExternalStorageDirectory();
 
                 Log.i(TAG, "Local folder opened : " + localRootFolder.getCanonicalPath());
 
-                //TODO: check if there is enough storage capacity before doing anything...
+                //Check if there is enough storage capacity before doing anything...
+                long localUsedSpace = localRootFolder.getTotalSpace() - localRootFolder.getFreeSpace();
+                long remoteFreeSpace = backupFolder.getDiskFreeSpace();
 
-                initBackupFolder(localRootFolder, backupFolder.getCanonicalPath(), auth);
+                //Usually, the storage experts recommend to keep 20% of available space on a FileSystem...
+                //Here, we will consider that this expectation is managed by the administrator of the samba/cifs server .
+                if (remoteFreeSpace - localUsedSpace > 0) {
 
-                Log.i(TAG, "### START REMOTE COPY ###");
-                long start = System.currentTimeMillis();
-                remoteCopy(localRootFolder, backupFolder.getCanonicalPath(), auth);
-                long laptime = System.currentTimeMillis() - start;
-                Log.i(TAG, "### REMOTE COPY IS OVER ###");
-                Log.i(TAG, "### Finished in : " + TimeConverter.convertMilliSecondsToString(laptime) + " ###");
+                    initBackupFolder(localRootFolder, backupFolder.getCanonicalPath(), auth);
+
+                    Log.i(TAG, "### START REMOTE COPY ###");
+                    long start = System.currentTimeMillis();
+                    remoteCopy(localRootFolder, backupFolder.getCanonicalPath(), auth);
+                    long laptime = System.currentTimeMillis() - start;
+                    Log.i(TAG, "### REMOTE COPY IS OVER ###");
+                    Log.i(TAG, "### Finished in : " + TimeConverter.convertMilliSecondsToString(laptime) + " ###");
+                } else {
+                    Log.e(TAG, "--- No available space on the remote server ---");
+                    Log.e(TAG, localUsedSpace + " Bytes are required and there is only " + remoteFreeSpace + " Bytes available !");
+                    Log.e(TAG, "Backup aborted !");
+                }
 
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage());
@@ -70,6 +91,18 @@ public class BackupService extends IntentService {
         }
     }
 
+    /**
+     * <pre>
+     *     Will list the parent folders (up to the roots) of the remote backup folder.
+     *     For exemple, the sdcard is located in /mnt/sdcard. Should be good to create mnt on
+     *     the remote server before creating the backup folder
+     *     and copy the content of the local media.
+     * </pre>
+     *
+     * @param rootFile the remote backup folder
+     * @return the list of the parent folder to create for initializing the remote backup folder
+     * @see #initBackupFolder(File, String, NtlmPasswordAuthentication)
+     */
     private List<File> getLocalRootFolderParents(File rootFile) {
 
         List<File> parents = new ArrayList<>();
@@ -86,6 +119,18 @@ public class BackupService extends IntentService {
         return parents;
     }
 
+    /**
+     * <pre>
+     *     Explore the local folder content and initiate its remote copy.
+     *     It's not an incremental copy (yet) but if a file already exists and the modified time is
+     *     more recent than the target, a new copy is performed.
+     *     Otherwise, it shifts to the next file/dir.
+     * </pre>
+     *
+     * @param src                       the source file/dir to copy on the remote server
+     * @param backupFolderCanonicalPath the path of the remote backup folder (after init of course).
+     * @param auth                      the JCIFS's authentication provided to access to the remote files/dirs.
+     */
     private void remoteCopy(File src, String backupFolderCanonicalPath, NtlmPasswordAuthentication auth) {
         try {
             if (src.canRead()) {
@@ -95,14 +140,14 @@ public class BackupService extends IntentService {
                     if (!file.exists())
                         file.mkdir();
                     for (File f : src.listFiles())
-                        remoteCopy(f, backupFolderCanonicalPath, auth);
+                        remoteCopy(f, backupFolderCanonicalPath, auth);//explore the directory
                 }
 
                 if (src.isFile()) {
                     if (!file.exists()) {
                         file.createNewFile();
-                        copy(src, file);
-                    } else if (src.lastModified() > file.lastModified())
+                        copy(src, file);//first or new copy
+                    } else if (src.lastModified() > file.lastModified()) //resynchronization
                         copy(src, file);
                 }
             }
@@ -115,6 +160,17 @@ public class BackupService extends IntentService {
 
     }
 
+    /**
+     * <pre>
+     *     Performs the remote copy from a local source to a remote target.
+     *     Buffer size is hardcoded and not automatically set.
+     *     32768 Bytes (32KiB) is the most performant value.
+     * </pre>
+     *
+     * @param src The source (a local file)
+     * @param trg The target (a remote file)
+     * @throws IOException sent if a major error occurs
+     */
     private void copy(File src, SmbFile trg) throws IOException {
         Log.i(TAG, "Copy " + (src.isDirectory() ? "DIR" : "FILE") + " " + src.getCanonicalPath() + " ==> " + trg.getCanonicalPath());
 
@@ -149,6 +205,14 @@ public class BackupService extends IntentService {
         }
     }
 
+    /**
+     * Will create the required local root folders on the remote server.
+     *
+     * @param localRootFolder           the local root folder (sdcard)
+     * @param backupFolderCanonicalPath the path to the remote backup folder (samba/cifs share).
+     * @param auth                      the JCIFS's authentication provided to access to the remote files/dirs.
+     * @throws IOException sent if a major error occurs
+     */
     private void initBackupFolder(File localRootFolder, String backupFolderCanonicalPath, NtlmPasswordAuthentication auth) throws IOException {
         List<File> parents = getLocalRootFolderParents(localRootFolder);
 

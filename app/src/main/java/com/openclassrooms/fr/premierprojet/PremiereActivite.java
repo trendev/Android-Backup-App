@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
@@ -39,7 +38,8 @@ public class PremiereActivite extends AppCompatActivity {
      */
     private final static int requestSecondActivity = 1;
 
-    private final static int requestBackupActivity = 2;
+    // Can be used to catch response from the BackupService.
+    // private final static int requestBackupActivity = 2;
 
     static String path;
     static String userpwd;
@@ -72,7 +72,7 @@ public class PremiereActivite extends AppCompatActivity {
          */
 
         /** Dynamic Broadcast
-         * BroadcastReceiver br = new MyReceiver();
+         * BroadcastReceiver br = new MediaEventsReceiver();
          * IntentFilter filter = new IntentFilter();
          * filter.addAction(Intent.ACTION_MEDIA_BAD_REMOVAL);
          * filter.addAction(Intent.ACTION_MEDIA_REMOVED);
@@ -164,25 +164,39 @@ public class PremiereActivite extends AppCompatActivity {
         return super.onKeyDown(keyCode, event);
     }
 
+    /**
+     * Will catch the response from activites/services
+     *
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == requestSecondActivity)
             if (resultCode == RESULT_OK)
                 Toast.makeText(this, data.getStringExtra(EXTRA_TOTAL_FILES) + " " + getResources().getString(R.string.files), Toast.LENGTH_SHORT).show();
 
-        if (requestCode == requestBackupActivity) {
+        //Useless : service is not running through a PendingIntent...
+        /*if (requestCode == requestBackupActivity) {
             if (data != null) {
                 if (resultCode != RESULT_OK)
                     Log.w(EXTRA_BACKUP_SERVICE, "Something goes wrong...");
                 else
                     Log.i(EXTRA_BACKUP_SERVICE, "** Backup Service finished with success **");
             }
-        }
+        }*/
     }
 
     /**
-     * Will backup the different device's medias activated samba/cifs sharing.
-     * Not yet implemented.
+     * <pre>
+     * Will backup the local media (sdcard) to a remote cifs/samba shared folder.
+     * BackupService is activated through an Intent started from the Backup Button.
+     * A Property is used to link the button activation with the service activation.
+     * When the service is running, the button is not enabled.
+     * The ChangeListener is defined here in an anonymous class and will activate/deactivate the Backup
+     * button calling the UI Thread.
+     * </pre>
      *
      * @param v the Button associated to the action
      */
@@ -194,6 +208,7 @@ public class PremiereActivite extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        //button status is the opposite of the service status
                         v.setEnabled((Boolean) propertyChangeEvent.getOldValue());
                     }
                 });

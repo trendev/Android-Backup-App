@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.os.Environment;
 import android.provider.ContactsContract;
 import android.test.ApplicationTestCase;
-import android.test.suitebuilder.annotation.LargeTest;
+import android.test.suitebuilder.annotation.SmallTest;
 import android.test.suitebuilder.annotation.Suppress;
 import android.util.Log;
 
@@ -216,7 +216,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         return parents;
     }
 
-    @Suppress
+    @SmallTest
     public void testRemoteFolderCreation() throws Exception {
         String remoteFolderName = "backup_android/";
 
@@ -231,9 +231,19 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
         assertTrue(remoteFolder.isDirectory());
 
+        File localRootFolder = Environment.getExternalStorageDirectory();
+
+        assertTrue(localRootFolder.isDirectory());
+        assertTrue(localRootFolder.canRead());
+
+        Log.i(TAG_EXPLORE_LOCAL_FILES, "Local Free Space = " + localRootFolder.getFreeSpace());
+        Log.i(TAG_EXPLORE_LOCAL_FILES, "Local Usable Space = " + localRootFolder.getUsableSpace());
+        Log.i(TAG_EXPLORE_LOCAL_FILES, "Local Total Space = " + localRootFolder.getTotalSpace());
+
+        Log.i(TAG_EXPLORE_LOCAL_FILES, "Remote Free Space = " + remoteFolder.getDiskFreeSpace());
     }
 
-    @LargeTest
+    @Suppress
     public void testRemoteCopy() throws Exception {
 
         String remoteFolderName = "backup_android";

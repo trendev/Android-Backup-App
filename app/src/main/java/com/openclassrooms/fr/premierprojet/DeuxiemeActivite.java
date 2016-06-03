@@ -3,6 +3,7 @@ package com.openclassrooms.fr.premierprojet;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -36,6 +37,8 @@ public class DeuxiemeActivite extends AppCompatActivity {
     private static int totalexp = 0;
     private static ProgressBar progressBar = null;
 
+    private final String TAG = "EXPLORE_REMOTE_SERVER";
+
     /**
      * Will explore the content of a folder.
      * Should be executed in a Thread in order to improve the performances.
@@ -43,58 +46,61 @@ public class DeuxiemeActivite extends AppCompatActivity {
      * @param file the folder to explore
      * @throws Exception
      */
-    private void exploreRemoteDirectory(final SmbFile file) throws Exception {
+    private void exploreRemoteDirectory(final SmbFile file) {
 
+        try {
+            if (file.canRead()) {
 
-        if (file.canRead()) {
+                /**
+                 * Position the current SmbFile and increment the depth counter if the position is in the root.
+                 */
+                currentSmbFile = file;
+                if (!currentSmbFile.equals(rootFile))
+                    depth++;
 
-            /**
-             * Position the current SmbFile and increment the depth counter if the position is in the root.
-             */
-            currentSmbFile = file;
-            if (!currentSmbFile.equals(rootFile))
-                depth++;
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    progressBar.setVisibility(View.VISIBLE);
-                    setTitle(file.getName());
-                }
-            });
-
-            SmbFile[] files = file.listFiles();
-
-            List<SmbFile> list = new ArrayList<>(files.length);
-
-            Collections.addAll(list, files);
-            Collections.sort(list, comparator);
-
-            /**
-             * localTotal must be reset during each exploration,
-             * otherwise if a folder is empty a wrong value will be displayed
-             */
-            localTotal = 0;
-            for (SmbFile smbFile : list) {
-                localTotal++;
-                totalexp++;
-                final SmbFile f = smbFile;
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        adapter.add(f);
+                        progressBar.setVisibility(View.VISIBLE);
+                        setTitle(file.getName());
+                    }
+                });
+
+                SmbFile[] files = file.listFiles();
+
+                List<SmbFile> list = new ArrayList<>(files.length);
+
+                Collections.addAll(list, files);
+                Collections.sort(list, comparator);
+
+                /**
+                 * localTotal must be reset during each exploration,
+                 * otherwise if a folder is empty a wrong value will be displayed
+                 */
+                localTotal = 0;
+                for (SmbFile smbFile : list) {
+                    localTotal++;
+                    totalexp++;
+                    final SmbFile f = smbFile;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            adapter.add(f);
+                        }
+                    });
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(DeuxiemeActivite.this, Integer.valueOf(localTotal).toString() + " " + getResources().getString(R.string.files), Toast.LENGTH_SHORT).show();
+                        result.putExtra(PremiereActivite.EXTRA_TOTAL_FILES, Integer.toString(totalexp));
+                        progressBar.setVisibility(View.INVISIBLE);
                     }
                 });
             }
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(DeuxiemeActivite.this, Integer.valueOf(localTotal).toString() + " " + getResources().getString(R.string.files), Toast.LENGTH_SHORT).show();
-                    result.putExtra(PremiereActivite.EXTRA_TOTAL_FILES, Integer.toString(totalexp));
-                    progressBar.setVisibility(View.INVISIBLE);
-                }
-            });
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
         }
     }
 
@@ -127,8 +133,10 @@ public class DeuxiemeActivite extends AppCompatActivity {
                             public void run() {
                                 try {
                                     exploreRemoteDirectory(smbFile);
+                                    setResult(RESULT_OK, result);
                                 } catch (Exception e) {
                                     e.printStackTrace();
+                                    setResult(RESULT_CANCELED, result);
                                 }
                             }
                         });
@@ -151,16 +159,15 @@ public class DeuxiemeActivite extends AppCompatActivity {
                      * we restart from the latest explored folder.
                      */
                     exploreRemoteDirectory((currentSmbFile == null) ? rootFile : currentSmbFile);
+                    setResult(RESULT_OK, result);
                 } catch (Exception e) {
                     e.printStackTrace();
+                    setResult(RESULT_CANCELED, result);
                 }
             }
         });
         t.setDaemon(true);
         t.start();
-
-        setResult(RESULT_OK, result);
-
     }
 
     /**
@@ -216,7 +223,6 @@ public class DeuxiemeActivite extends AppCompatActivity {
         depth = 0;
         totalexp = 0;
     }
-
 
 
 }

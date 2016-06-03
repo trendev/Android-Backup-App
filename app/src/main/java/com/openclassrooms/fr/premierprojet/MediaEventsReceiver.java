@@ -10,7 +10,7 @@ import android.widget.Toast;
  * Intent-filters are defined in the AndroidManifest xml file!
  * @author jsie
  */
-public class MyReceiver extends BroadcastReceiver {
+public class MediaEventsReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
