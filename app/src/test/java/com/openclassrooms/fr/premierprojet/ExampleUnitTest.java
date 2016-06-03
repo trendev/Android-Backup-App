@@ -6,7 +6,7 @@ import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbFile;
 
 /**
- * To work on unit tests, switch the Test Artifact in the Build Variants view.
+ * To work activated unit tests, switch the Test Artifact in the Build Variants view.
  */
 public class ExampleUnitTest {
 
@@ -32,10 +32,5 @@ public class ExampleUnitTest {
 
         assert (attributs & SmbFile.ATTR_READONLY) == 0;
         System.out.println("Attributes = " + attributs);
-    }
-
-    @Test
-    public void testLocalFileExplorer() {
-
     }
 }

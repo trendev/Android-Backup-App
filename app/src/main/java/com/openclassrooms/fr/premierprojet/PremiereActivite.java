@@ -6,14 +6,17 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+
+import jcifs.smb.NtlmPasswordAuthentication;
 
 /**
  * Main activity.
@@ -35,7 +38,12 @@ public class PremiereActivite extends AppCompatActivity {
      */
     private final static int requestSecondActivity = 1;
 
-    private final static int requestBackupActivity = 2;
+    // Can be used to catch response from the BackupService.
+    // private final static int requestBackupActivity = 2;
+
+    static String path;
+    static String userpwd;
+    static NtlmPasswordAuthentication auth;
 
     /**
      * The central text zone where message are displayed
@@ -48,6 +56,8 @@ public class PremiereActivite extends AppCompatActivity {
         setContentView(R.layout.activity_premiere_activite);
 
         textView = (TextView) findViewById(R.id.textView);
+
+        initPreferences();
 
         /*Log.i("HOST = ", Build.HOST);
         Log.i("DEVICE = ",Build.DEVICE);
@@ -62,7 +72,7 @@ public class PremiereActivite extends AppCompatActivity {
          */
 
         /** Dynamic Broadcast
-         * BroadcastReceiver br = new MyReceiver();
+         * BroadcastReceiver br = new MediaEventsReceiver();
          * IntentFilter filter = new IntentFilter();
          * filter.addAction(Intent.ACTION_MEDIA_BAD_REMOVAL);
          * filter.addAction(Intent.ACTION_MEDIA_REMOVED);
@@ -146,7 +156,7 @@ public class PremiereActivite extends AppCompatActivity {
     }
 
     /**
-     * Will leave the application if Key Back is pressed on the main activity.
+     * Will leave the application if Key Back is pressed activated the main activity.
      * Threads will be interrupted because they are daemons.
      */
     @Override
@@ -154,33 +164,80 @@ public class PremiereActivite extends AppCompatActivity {
         return super.onKeyDown(keyCode, event);
     }
 
+    /**
+     * Will catch the response from activites/services
+     *
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == requestSecondActivity)
             if (resultCode == RESULT_OK)
                 Toast.makeText(this, data.getStringExtra(EXTRA_TOTAL_FILES) + " " + getResources().getString(R.string.files), Toast.LENGTH_SHORT).show();
 
-        if (requestCode == requestBackupActivity) {
+        //Useless : service is not running through a PendingIntent...
+        /*if (requestCode == requestBackupActivity) {
             if (data != null) {
                 if (resultCode != RESULT_OK)
                     Log.w(EXTRA_BACKUP_SERVICE, "Something goes wrong...");
                 else
                     Log.i(EXTRA_BACKUP_SERVICE, "** Backup Service finished with success **");
             }
-        }
+        }*/
     }
 
     /**
-     * Will backup the different device's medias on samba/cifs sharing.
-     * Not yet implemented.
+     * <pre>
+     * Will backup the local media (sdcard) to a remote cifs/samba shared folder.
+     * BackupService is activated through an Intent started from the Backup Button.
+     * A Property is used to link the button activation with the service activation.
+     * When the service is running, the button is not enabled.
+     * The ChangeListener is defined here in an anonymous class and will activate/deactivate the Backup
+     * button calling the UI Thread.
+     * </pre>
      *
      * @param v the Button associated to the action
      */
-    public void backup(View v) {
-        Intent intentBackup = new Intent(this, BackupService.class);
-        int value = 0;
-        intentBackup.putExtra(EXTRA_BACKUP_SERVICE, value);
+    public void backup(final View v) {
 
-        startService(intentBackup);
+        BackupService.activationProperty.addActivatedPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(final PropertyChangeEvent propertyChangeEvent) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //button status is the opposite of the service status
+                        v.setEnabled((Boolean) propertyChangeEvent.getOldValue());
+                    }
+                });
+            }
+        });
+        final Intent intent = new Intent(this, BackupService.class);
+        startService(intent);
+    }
+
+    /**
+     * Initialize the samba/cifs connections with the application's preferences
+     * or use anonymous parameters instead.
+     * By default, will use jsie authentification activated ylalsrv01
+     */
+    void initPreferences() {
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        //TODO : Get a value from preferences and lock the preferences if anonymous is not selected
+        boolean anonymous = false;
+
+        if (anonymous) {
+            PremiereActivite.auth = null;
+            PremiereActivite.path = null;
+            PremiereActivite.userpwd = null;
+        } else {
+            PremiereActivite.path = sharedPreferences.getString(getResources().getString(R.string.server_path), "smb://ylalsrv01/jsie-home/");
+            PremiereActivite.userpwd = sharedPreferences.getString(getResources().getString(R.string.userpwd_auth), "jsie:qsec0fr");
+            PremiereActivite.auth = new NtlmPasswordAuthentication(PremiereActivite.userpwd);
+        }
     }
 }

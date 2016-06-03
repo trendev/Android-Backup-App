@@ -1,10 +1,9 @@
 package com.openclassrooms.fr.premierprojet;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -19,11 +18,10 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
-import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbFile;
 
 /**
- * This activity is used to display the list of the different process running on the device
+ * This activity is used to display the list of the different process running activated the device
  *
  * @author jsie
  */
@@ -31,9 +29,6 @@ public class DeuxiemeActivite extends AppCompatActivity {
 
     private static final Comparator<SmbFile> comparator = new SmbFileAdapter.SmbFileComparator();
     private static final Intent result = new Intent();
-    private static String path;
-    private static String userpwdAuth;
-    private static NtlmPasswordAuthentication auth;
     private static SmbFile rootFile = null;
     private static SmbFile currentSmbFile = null;
     private static ArrayAdapter<SmbFile> adapter;
@@ -42,6 +37,8 @@ public class DeuxiemeActivite extends AppCompatActivity {
     private static int totalexp = 0;
     private static ProgressBar progressBar = null;
 
+    private final String TAG = "EXPLORE_REMOTE_SERVER";
+
     /**
      * Will explore the content of a folder.
      * Should be executed in a Thread in order to improve the performances.
@@ -49,58 +46,61 @@ public class DeuxiemeActivite extends AppCompatActivity {
      * @param file the folder to explore
      * @throws Exception
      */
-    private void exploreDirectory(final SmbFile file) throws Exception {
+    private void exploreRemoteDirectory(final SmbFile file) {
 
+        try {
+            if (file.canRead()) {
 
-        if (file.canRead()) {
+                /**
+                 * Position the current SmbFile and increment the depth counter if the position is in the root.
+                 */
+                currentSmbFile = file;
+                if (!currentSmbFile.equals(rootFile))
+                    depth++;
 
-            /**
-             * Position the current SmbFile and increment the depth counter if the position is in the root.
-             */
-            currentSmbFile = file;
-            if (!currentSmbFile.equals(rootFile))
-                depth++;
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    progressBar.setVisibility(View.VISIBLE);
-                    setTitle(file.getName());
-                }
-            });
-
-            SmbFile[] files = file.listFiles();
-
-            List<SmbFile> list = new ArrayList<>(files.length);
-
-            Collections.addAll(list, files);
-            Collections.sort(list, comparator);
-
-            /**
-             * localTotal must be reset during each exploration,
-             * otherwise if a folder is empty a wrong value will be displayed
-             */
-            localTotal = 0;
-            for (SmbFile smbFile : list) {
-                localTotal++;
-                totalexp++;
-                final SmbFile f = smbFile;
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        adapter.add(f);
+                        progressBar.setVisibility(View.VISIBLE);
+                        setTitle(file.getName());
+                    }
+                });
+
+                SmbFile[] files = file.listFiles();
+
+                List<SmbFile> list = new ArrayList<>(files.length);
+
+                Collections.addAll(list, files);
+                Collections.sort(list, comparator);
+
+                /**
+                 * localTotal must be reset during each exploration,
+                 * otherwise if a folder is empty a wrong value will be displayed
+                 */
+                localTotal = 0;
+                for (SmbFile smbFile : list) {
+                    localTotal++;
+                    totalexp++;
+                    final SmbFile f = smbFile;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            adapter.add(f);
+                        }
+                    });
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(DeuxiemeActivite.this, Integer.valueOf(localTotal).toString() + " " + getResources().getString(R.string.files), Toast.LENGTH_SHORT).show();
+                        result.putExtra(PremiereActivite.EXTRA_TOTAL_FILES, Integer.toString(totalexp));
+                        progressBar.setVisibility(View.INVISIBLE);
                     }
                 });
             }
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(DeuxiemeActivite.this, Integer.valueOf(localTotal).toString() + " " + getResources().getString(R.string.files), Toast.LENGTH_SHORT).show();
-                    result.putExtra(PremiereActivite.EXTRA_TOTAL_FILES, Integer.toString(totalexp));
-                    progressBar.setVisibility(View.INVISIBLE);
-                }
-            });
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
         }
     }
 
@@ -132,9 +132,11 @@ public class DeuxiemeActivite extends AppCompatActivity {
                             @Override
                             public void run() {
                                 try {
-                                    exploreDirectory(smbFile);
+                                    exploreRemoteDirectory(smbFile);
+                                    setResult(RESULT_OK, result);
                                 } catch (Exception e) {
                                     e.printStackTrace();
+                                    setResult(RESULT_CANCELED, result);
                                 }
                             }
                         });
@@ -150,24 +152,22 @@ public class DeuxiemeActivite extends AppCompatActivity {
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
-                initPreferences();
                 try {
-                    rootFile = new SmbFile(path, auth);
+                    rootFile = new SmbFile(PremiereActivite.path, PremiereActivite.auth);
                     /**
                      * If the remote folder has already been explored,
                      * we restart from the latest explored folder.
                      */
-                    exploreDirectory((currentSmbFile == null) ? rootFile : currentSmbFile);
+                    exploreRemoteDirectory((currentSmbFile == null) ? rootFile : currentSmbFile);
+                    setResult(RESULT_OK, result);
                 } catch (Exception e) {
                     e.printStackTrace();
+                    setResult(RESULT_CANCELED, result);
                 }
             }
         });
         t.setDaemon(true);
         t.start();
-
-        setResult(RESULT_OK, result);
-
     }
 
     /**
@@ -194,7 +194,7 @@ public class DeuxiemeActivite extends AppCompatActivity {
                     @Override
                     public void run() {
                         try {
-                            exploreDirectory(new SmbFile(currentSmbFile.getParent(), auth));
+                            exploreRemoteDirectory(new SmbFile(currentSmbFile.getParent(), PremiereActivite.auth));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -224,27 +224,5 @@ public class DeuxiemeActivite extends AppCompatActivity {
         totalexp = 0;
     }
 
-    /**
-     * Initialize the samba/cifs connections with the application's preferences
-     * or use anonymous parameters instead.
-     * By default, will use jsie authentification on ylalsrv01
-     */
-    private void initPreferences() {
-
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-        //TODO : Get a value from preferences and lock the preferences if anonymous is not selected
-        boolean anonymous = false;
-
-        if (anonymous) {
-            auth = null;
-            path = null;
-            userpwdAuth = null;
-        } else {
-            path = sharedPreferences.getString(getResources().getString(R.string.server_path), "smb://ylalsrv01/jsie-home/");
-            userpwdAuth = sharedPreferences.getString(getResources().getString(R.string.userpwd_auth), "jsie:qsec0fr");
-            auth = new NtlmPasswordAuthentication(userpwdAuth);
-        }
-    }
 
 }
