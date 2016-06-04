@@ -17,4 +17,8 @@
     <string name="edit_auth">Edit the authentication</string>
     <string name="server">Remote-Server</string>
     <string name="backup">Backup</string>
+    <string name="checkBoxPref" translatable="false">checkBoxPref</string>
+    <string name="anonymousOff">Anonymous Disabled</string>
+    <string name="anonymousOn">Anonymous Connection</string>
+    <string name="anonymous">Anonymous</string>
 </resources>

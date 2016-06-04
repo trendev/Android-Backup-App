@@ -15,4 +15,7 @@
     <string name="auth">Autenticação</string>
     <string name="server">Servidor Remoto</string>
     <string name="backup">Cópia de Segurança</string>
+    <string name="anonymous">Anônimo</string>
+    <string name="anonymousOff">Anônimo Desativado</string>
+    <string name="anonymousOn">Anônimo Ativado</string>
 </resources>

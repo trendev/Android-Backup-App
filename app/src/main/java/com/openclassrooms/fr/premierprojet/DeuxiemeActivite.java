@@ -99,8 +99,16 @@ public class DeuxiemeActivite extends AppCompatActivity {
                     }
                 });
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             Log.e(TAG, e.getMessage());
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(DeuxiemeActivite.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    result.putExtra(PremiereActivite.EXTRA_TOTAL_FILES, Integer.toString(totalexp));
+                    progressBar.setVisibility(View.INVISIBLE);
+                }
+            });
         }
     }
 

@@ -10,12 +10,12 @@
     <PreferenceCategory android:title="@string/server">
         <CheckBoxPreference
             android:defaultValue="false"
-            android:key="checkBoxPref"
-            android:summaryOff="Anonymous Connection"
-            android:summaryOn="Anonymous"
-            android:title="Anonymous" />
-        <!-- manage the dependency -->
-        <!-- ##################### -->
+            android:disableDependentsState="true"
+            android:key="@string/checkBoxPref"
+            android:summaryOff="@string/anonymousOff"
+            android:summaryOn="@string/anonymousOn"
+            android:title="@string/anonymous" />
+
         <EditTextPreference
             android:dialogTitle="@string/path"
             android:key="@string/server_path"
@@ -24,6 +24,7 @@
             android:summary="@string/edit_path"
             android:title="@string/path" />
         <EditTextPreference
+            android:dependency="@string/checkBoxPref"
             android:dialogTitle="@string/auth"
             android:key="@string/userpwd_auth"
             android:negativeButtonText="@android:string/cancel"

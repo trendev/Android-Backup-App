@@ -31,8 +31,6 @@ public class PremiereActivite extends AppCompatActivity {
      */
     public final static String EXTRA_TOTAL_FILES = "EXTRA_TOTAL_FILES";
 
-    public final static String EXTRA_BACKUP_SERVICE = "BACKUP_SERVICE";
-
     /**
      * The value used to define the origin of the request towards the second activity
      */
@@ -89,7 +87,7 @@ public class PremiereActivite extends AppCompatActivity {
      * @param v The button associated to the action
      */
     public void sayHello(View v) {
-
+        initPreferences();
         textView.setMovementMethod(new ScrollingMovementMethod());
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -123,10 +121,11 @@ public class PremiereActivite extends AppCompatActivity {
      * @param v the Button associated to the action
      */
     public void displaySharing(View v) {
+        initPreferences();
         Intent deuxiemeActivite = new Intent(this, DeuxiemeActivite.class);
         startActivityForResult(deuxiemeActivite, requestSecondActivity);
         //send a sms
-        /*Uri sms = Uri.parse("smsto:+33787428425?body=" + sb.toString());
+        /*Uri sms = Uri.parse("smsto:+33xxxxxxxx?body=" + sb.toString());
         Intent sendListProcess = new Intent(Intent.ACTION_SENDTO, sms);
         startActivity(sendListProcess);*/
     }
@@ -202,7 +201,10 @@ public class PremiereActivite extends AppCompatActivity {
      */
     public void backup(final View v) {
 
-        BackupService.activationProperty.addActivatedPropertyChangeListener(new PropertyChangeListener() {
+        initPreferences();
+
+        //avoid to be garbage-collected...
+        PropertyChangeListener listener = new PropertyChangeListener() {
             @Override
             public void propertyChange(final PropertyChangeEvent propertyChangeEvent) {
                 runOnUiThread(new Runnable() {
@@ -213,7 +215,9 @@ public class PremiereActivite extends AppCompatActivity {
                     }
                 });
             }
-        });
+        };
+
+        BackupService.activationProperty.addActivatedPropertyChangeListener(listener);
         final Intent intent = new Intent(this, BackupService.class);
         startService(intent);
     }
@@ -226,18 +230,16 @@ public class PremiereActivite extends AppCompatActivity {
     void initPreferences() {
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        path = sharedPreferences.getString(getResources().getString(R.string.server_path), "smb://ylalsrv01/jsie-home/");
 
-        //TODO : Anonymous mode, Add a checkbox in preferences
-        boolean anonymous = false;
+        boolean anonymous = sharedPreferences.getBoolean(getResources().getString(R.string.checkBoxPref), false);
 
         if (anonymous) {
-            PremiereActivite.auth = null;
-            PremiereActivite.path = null;
-            PremiereActivite.userpwd = null;
+            auth = new NtlmPasswordAuthentication(null, null, null);
+            userpwd = null;
         } else {
-            PremiereActivite.path = sharedPreferences.getString(getResources().getString(R.string.server_path), "smb://ylalsrv01/jsie-home/");
-            PremiereActivite.userpwd = sharedPreferences.getString(getResources().getString(R.string.userpwd_auth), "jsie:qsec0fr");
-            PremiereActivite.auth = new NtlmPasswordAuthentication(PremiereActivite.userpwd);
+            userpwd = sharedPreferences.getString(getResources().getString(R.string.userpwd_auth), "jsie:qsec0fr");
+            auth = new NtlmPasswordAuthentication(userpwd);
         }
     }
 }

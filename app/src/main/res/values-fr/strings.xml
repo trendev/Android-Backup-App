@@ -15,4 +15,7 @@
     <string name="auth">Authentification</string>
     <string name="server">Serveur Distant</string>
     <string name="backup">Sauvegarde</string>
+    <string name="anonymous">Anonyme</string>
+    <string name="anonymousOff">Mode Anonyme Désactivé</string>
+    <string name="anonymousOn">Connection en  Anonyme</string>
 </resources>
