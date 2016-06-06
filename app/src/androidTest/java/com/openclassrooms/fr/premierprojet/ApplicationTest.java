@@ -4,6 +4,8 @@ import android.app.Application;
 import android.content.ContentProviderClient;
 import android.content.Context;
 import android.database.Cursor;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.os.Environment;
 import android.provider.ContactsContract;
 import android.telephony.TelephonyManager;
@@ -40,6 +42,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
     private final String TAG_EXPLORE_LOCAL_FILES = "EXPLORE_LOCAL_FILES";
     private final String TAG_REMOTE_COPY = "REMOTE_COPY";
+    private final String TAG_SENSOR = "SENSOR_SERVICES";
     private final String path = "smb://livebox/usbkey_jsie/"; //"smb://ylalsrv01/jsie-home/";
     private final String filename = "android.txt";
     private final String userpwd = "jsie:qsec0fr";
@@ -218,7 +221,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         return parents;
     }
 
-    @SmallTest
+    @Suppress
     public void testRemoteFolderCreation() throws Exception {
         String remoteFolderName = "backup_android/";
 
@@ -245,14 +248,6 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         Log.i(TAG_EXPLORE_LOCAL_FILES, "Remote Free Space = " + remoteFolder.getDiskFreeSpace());
     }
 
-    @SmallTest
-    public void testDeviceId() {
-        TelephonyManager tm = (TelephonyManager) getSystemContext().getSystemService(Context.TELEPHONY_SERVICE);
-        assertNotNull(tm);
-
-        Log.i(TAG_EXPLORE_LOCAL_FILES, tm.getDeviceId());
-
-    }
 
     @Suppress
     public void testRemoteCopy() throws Exception {
@@ -378,5 +373,22 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
             if (!dir.exists())
                 dir.mkdir();
         }
+    }
+
+    @SmallTest
+    public void testDeviceId() {
+        TelephonyManager tm = (TelephonyManager) getSystemContext().getSystemService(Context.TELEPHONY_SERVICE);
+        assertNotNull(tm);
+
+        Log.i(TAG_EXPLORE_LOCAL_FILES, tm.getDeviceId());
+
+    }
+
+    public void testSensors() {
+        SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
+
+        for (Sensor s : sensorManager.getSensorList(Sensor.TYPE_ALL))
+            Log.i(TAG_SENSOR, s.getName());
+
     }
 }
