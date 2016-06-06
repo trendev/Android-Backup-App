@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -205,6 +206,8 @@ public class PremiereActivite extends AppCompatActivity {
 
         initPreferences();
 
+        final ProgressBar backupStatus = (ProgressBar) findViewById(R.id.progressBar2);
+
         //avoid to be garbage-collected...
         PropertyChangeListener listener = new PropertyChangeListener() {
             @Override
@@ -212,8 +215,16 @@ public class PremiereActivite extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        boolean value = (Boolean) propertyChangeEvent.getNewValue();
                         //button status is the opposite of the service status
-                        v.setEnabled((Boolean) propertyChangeEvent.getOldValue());
+                        v.setEnabled(!value);
+
+                        if (value)
+                            backupStatus.setVisibility(View.VISIBLE);
+                        else {
+                            backupStatus.setVisibility(View.INVISIBLE);
+                            backupStatus.setIndeterminate(true);
+                        }
                     }
                 });
             }

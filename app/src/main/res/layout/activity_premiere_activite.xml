@@ -78,4 +78,19 @@
         android:onClick="backup"
         android:text="@string/backup" />
 
+    <ProgressBar
+        android:id="@+id/progressBar2"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/button3"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/button2"
+        android:focusable="false"
+        android:indeterminate="true"
+        android:visibility="invisible" />
+
 </RelativeLayout>
