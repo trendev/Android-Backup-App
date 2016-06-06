@@ -2,9 +2,11 @@ package com.openclassrooms.fr.premierprojet;
 
 import android.app.Application;
 import android.content.ContentProviderClient;
+import android.content.Context;
 import android.database.Cursor;
 import android.os.Environment;
 import android.provider.ContactsContract;
+import android.telephony.TelephonyManager;
 import android.test.ApplicationTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.test.suitebuilder.annotation.Suppress;
@@ -38,7 +40,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
     private final String TAG_EXPLORE_LOCAL_FILES = "EXPLORE_LOCAL_FILES";
     private final String TAG_REMOTE_COPY = "REMOTE_COPY";
-    private final String path = "smb://ylalsrv01/jsie-home/";
+    private final String path = "smb://livebox/usbkey_jsie/"; //"smb://ylalsrv01/jsie-home/";
     private final String filename = "android.txt";
     private final String userpwd = "jsie:qsec0fr";
 
@@ -241,6 +243,15 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         Log.i(TAG_EXPLORE_LOCAL_FILES, "Local Total Space = " + localRootFolder.getTotalSpace());
 
         Log.i(TAG_EXPLORE_LOCAL_FILES, "Remote Free Space = " + remoteFolder.getDiskFreeSpace());
+    }
+
+    @SmallTest
+    public void testDeviceId() {
+        TelephonyManager tm = (TelephonyManager) getSystemContext().getSystemService(Context.TELEPHONY_SERVICE);
+        assertNotNull(tm);
+
+        Log.i(TAG_EXPLORE_LOCAL_FILES, tm.getDeviceId());
+
     }
 
     @Suppress

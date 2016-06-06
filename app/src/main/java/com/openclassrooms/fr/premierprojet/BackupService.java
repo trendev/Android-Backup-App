@@ -1,8 +1,10 @@
 package com.openclassrooms.fr.premierprojet;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Environment;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import com.openclassrooms.fr.premierprojet.beans.ActivationProperty;
@@ -17,7 +19,6 @@ import java.util.Collections;
 import java.util.List;
 
 import fr.yla.misc.TimeConverter;
-import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
 
@@ -41,15 +42,14 @@ public class BackupService extends IntentService {
      */
     @Override
     protected void onHandleIntent(Intent intent) {
-        String remoteFolderName = "backup_android";
+        TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        String remoteFolderName = "backup_android_" + tm.getDeviceId();
 
         if (!activationProperty.isActivated()) {
             activationProperty.setActivated(true);
             try {
-                NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(PremiereActivite.userpwd);
-
                 //open the remote folder on samba/cifs server
-                SmbFile backupFolder = new SmbFile(PremiereActivite.path + remoteFolderName, auth);
+                SmbFile backupFolder = new SmbFile(PremiereActivite.path + remoteFolderName, PremiereActivite.auth);
                 if (!backupFolder.exists())
                     backupFolder.mkdir();
 
@@ -69,11 +69,11 @@ public class BackupService extends IntentService {
                 //Here, we will consider that this expectation is managed by the administrator of the samba/cifs server .
                 if (remoteFreeSpace - localUsedSpace > 0) {
 
-                    initBackupFolder(localRootFolder, backupFolder.getCanonicalPath(), auth);
+                    initBackupFolder(localRootFolder, backupFolder.getCanonicalPath());
 
                     Log.i(TAG, "### START REMOTE COPY ###");
                     long start = System.currentTimeMillis();
-                    remoteCopy(localRootFolder, backupFolder.getCanonicalPath(), auth);
+                    remoteCopy(localRootFolder, backupFolder.getCanonicalPath());
                     long laptime = System.currentTimeMillis() - start;
                     Log.i(TAG, "### REMOTE COPY IS OVER ###");
                     Log.i(TAG, "### Finished in : " + TimeConverter.convertMilliSecondsToString(laptime) + " ###");
@@ -101,7 +101,7 @@ public class BackupService extends IntentService {
      *
      * @param rootFile the remote backup folder
      * @return the list of the parent folder to create for initializing the remote backup folder
-     * @see #initBackupFolder(File, String, NtlmPasswordAuthentication)
+     * @see #initBackupFolder(File, String)
      */
     private List<File> getLocalRootFolderParents(File rootFile) {
 
@@ -129,18 +129,17 @@ public class BackupService extends IntentService {
      *
      * @param src                       the source file/dir to copy on the remote server
      * @param backupFolderCanonicalPath the path of the remote backup folder (after init of course).
-     * @param auth                      the JCIFS's authentication provided to access to the remote files/dirs.
      */
-    private void remoteCopy(File src, String backupFolderCanonicalPath, NtlmPasswordAuthentication auth) {
+    private void remoteCopy(File src, String backupFolderCanonicalPath) {
         try {
             if (src.canRead()) {
-                SmbFile file = new SmbFile(backupFolderCanonicalPath + src.getCanonicalPath(), auth);
+                SmbFile file = new SmbFile(backupFolderCanonicalPath + src.getCanonicalPath(), PremiereActivite.auth);
 
                 if (src.isDirectory()) {
                     if (!file.exists())
                         file.mkdir();
                     for (File f : src.listFiles())
-                        remoteCopy(f, backupFolderCanonicalPath, auth);//explore the directory
+                        remoteCopy(f, backupFolderCanonicalPath);//explore the directory
                 }
 
                 if (src.isFile()) {
@@ -210,10 +209,9 @@ public class BackupService extends IntentService {
      *
      * @param localRootFolder           the local root folder (sdcard)
      * @param backupFolderCanonicalPath the path to the remote backup folder (samba/cifs share).
-     * @param auth                      the JCIFS's authentication provided to access to the remote files/dirs.
      * @throws IOException sent if a major error occurs
      */
-    private void initBackupFolder(File localRootFolder, String backupFolderCanonicalPath, NtlmPasswordAuthentication auth) throws IOException {
+    private void initBackupFolder(File localRootFolder, String backupFolderCanonicalPath) throws IOException {
         List<File> parents = getLocalRootFolderParents(localRootFolder);
 
         int before = parents.size();
@@ -227,7 +225,7 @@ public class BackupService extends IntentService {
 
         for (File p : parents) {
             Log.i(TAG, "folder to create during init " + p.getCanonicalPath());
-            SmbFile dir = new SmbFile(backupFolderCanonicalPath + p.getCanonicalPath(), auth);
+            SmbFile dir = new SmbFile(backupFolderCanonicalPath + p.getCanonicalPath(), PremiereActivite.auth);
             if (!dir.exists())
                 dir.mkdir();
         }
