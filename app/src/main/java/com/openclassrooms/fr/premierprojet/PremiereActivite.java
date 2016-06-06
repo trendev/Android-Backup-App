@@ -201,7 +201,7 @@ public class PremiereActivite extends AppCompatActivity {
      */
     public void backup(final View v) {
 
-        //TODO: implement a ProgressBar
+        //TODO: Implement a progress bar in order to show the backup status
 
         initPreferences();
 
