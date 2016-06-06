@@ -58,6 +58,8 @@ public class BackupService extends IntentService {
 
                 //get the root folder (usually from the sdcard device)
                 File localRootFolder = Environment.getExternalStorageDirectory();
+                if (localRootFolder == null)
+                    throw new UnsupportedOperationException(TAG + ": no external to backup !");
 
                 Log.i(TAG, "Local folder opened : " + localRootFolder.getCanonicalPath());
 

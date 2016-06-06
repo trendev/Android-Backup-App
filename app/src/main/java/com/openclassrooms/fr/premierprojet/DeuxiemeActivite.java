@@ -107,6 +107,7 @@ public class DeuxiemeActivite extends AppCompatActivity {
                     Toast.makeText(DeuxiemeActivite.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                     result.putExtra(PremiereActivite.EXTRA_TOTAL_FILES, Integer.toString(totalexp));
                     progressBar.setVisibility(View.INVISIBLE);
+                    finish();
                 }
             });
         }
