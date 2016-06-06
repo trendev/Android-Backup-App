@@ -14,16 +14,16 @@ import java.beans.PropertyChangeSupport;
  * Created on 03/06/16.
  * @author jsie
  */
-public class ActivationProperty {
+public class BooleanProperty {
     private boolean activated;
     private Object bean;
     private PropertyChangeSupport pcs;
 
-    public ActivationProperty() {
+    public BooleanProperty() {
         this(false);
     }
 
-    public ActivationProperty(boolean activated) {
+    public BooleanProperty(boolean activated) {
         bean = new Object();
         pcs = new PropertyChangeSupport(bean);
         this.activated = activated;

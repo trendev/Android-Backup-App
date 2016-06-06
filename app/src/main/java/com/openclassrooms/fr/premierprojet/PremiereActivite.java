@@ -201,6 +201,8 @@ public class PremiereActivite extends AppCompatActivity {
      */
     public void backup(final View v) {
 
+        //TODO: implement a ProgressBar
+
         initPreferences();
 
         //avoid to be garbage-collected...

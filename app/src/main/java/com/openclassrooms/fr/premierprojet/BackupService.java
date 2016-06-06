@@ -7,7 +7,7 @@ import android.os.Environment;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
-import com.openclassrooms.fr.premierprojet.beans.ActivationProperty;
+import com.openclassrooms.fr.premierprojet.beans.BooleanProperty;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,7 +25,7 @@ import jcifs.smb.SmbFile;
 public class BackupService extends IntentService {
 
     //The property which link the Backup button status and the status of this service
-    static final ActivationProperty activationProperty = new ActivationProperty();
+    static final BooleanProperty activationProperty = new BooleanProperty();
     private final static String TAG = "BACKUP_SERVICE";
 
     public BackupService() {
