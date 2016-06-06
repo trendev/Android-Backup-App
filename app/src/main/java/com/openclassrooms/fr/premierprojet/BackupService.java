@@ -8,6 +8,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import com.openclassrooms.fr.premierprojet.beans.BooleanProperty;
+import com.openclassrooms.fr.premierprojet.beans.LongProperty;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,7 +27,11 @@ public class BackupService extends IntentService {
 
     //The property which link the Backup button status and the status of this service
     static final BooleanProperty activationProperty = new BooleanProperty();
+
+    static final LongProperty progressProperty = new LongProperty();
+
     private final static String TAG = "BACKUP_SERVICE";
+    static long localUsedSpace = 0L;
 
     public BackupService() {
         super(TAG);
@@ -45,8 +50,8 @@ public class BackupService extends IntentService {
         TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         String remoteFolderName = "backup_android_" + tm.getDeviceId();
 
-        if (!activationProperty.isActivated()) {
-            activationProperty.setActivated(true);
+        if (!activationProperty.getValue()) {
+            activationProperty.setValue(true);
             try {
                 //open the remote folder on samba/cifs server
                 SmbFile backupFolder = new SmbFile(PremiereActivite.path + remoteFolderName, PremiereActivite.auth);
@@ -64,7 +69,9 @@ public class BackupService extends IntentService {
                 Log.i(TAG, "Local folder opened : " + localRootFolder.getCanonicalPath());
 
                 //Check if there is enough storage capacity before doing anything...
-                long localUsedSpace = localRootFolder.getTotalSpace() - localRootFolder.getFreeSpace();
+                localUsedSpace = exploreLocalDirectory(localRootFolder);
+                progressProperty.setValue(0L);
+
                 long remoteFreeSpace = backupFolder.getDiskFreeSpace();
 
                 //Usually, the storage experts recommend to keep 20% of available space on a FileSystem...
@@ -74,11 +81,13 @@ public class BackupService extends IntentService {
                     initBackupFolder(localRootFolder, backupFolder.getCanonicalPath());
 
                     Log.i(TAG, "### START REMOTE COPY ###");
+                    Log.i(TAG, "To backup = " + localUsedSpace + " / Available = " + remoteFreeSpace);
                     long start = System.currentTimeMillis();
                     remoteCopy(localRootFolder, backupFolder.getCanonicalPath());
                     long laptime = System.currentTimeMillis() - start;
                     Log.i(TAG, "### REMOTE COPY IS OVER ###");
                     Log.i(TAG, "### Finished in : " + TimeConverter.convertMilliSecondsToString(laptime) + " ###");
+                    Log.i(TAG, "@@@ Discovered = " + progressProperty.getValue() + " / TOTAL = " + localUsedSpace + " @@@");
                 } else {
                     Log.e(TAG, "--- No available space on the remote server ---");
                     Log.e(TAG, localUsedSpace + " Bytes are required and there is only " + remoteFreeSpace + " Bytes available !");
@@ -88,7 +97,7 @@ public class BackupService extends IntentService {
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage());
             } finally {
-                activationProperty.setActivated(false);
+                activationProperty.setValue(false);
             }
         }
     }
@@ -122,6 +131,26 @@ public class BackupService extends IntentService {
     }
 
     /**
+     * Will explore the local storage device (sdcard) and compute the total of bytes to backup.
+     *
+     * @param file a directory to explore
+     * @return the directory's size (in Bytes)
+     * @throws IOException if an error occurs during the exploration
+     */
+    private long exploreLocalDirectory(File file) throws IOException {
+
+        long total = 0L;
+
+        for (File f : file.listFiles()) {
+            total += f.length();
+            if (f.isDirectory() && !f.isHidden())
+                total += exploreLocalDirectory(f);
+        }
+
+        return total;
+    }
+
+    /**
      * <pre>
      *     Explore the local folder content and initiate its remote copy.
      *     It's not an incremental copy (yet) but if a file already exists and the modified time is
@@ -135,9 +164,12 @@ public class BackupService extends IntentService {
     private void remoteCopy(File src, String backupFolderCanonicalPath) {
         try {
             if (src.canRead()) {
+
+                progressProperty.setValue(progressProperty.getValue() + src.length());
+
                 SmbFile file = new SmbFile(backupFolderCanonicalPath + src.getCanonicalPath(), PremiereActivite.auth);
 
-                if (src.isDirectory()) {
+                if (src.isDirectory() && !src.isHidden()) {
                     if (!file.exists())
                         file.mkdir();
                     for (File f : src.listFiles())
@@ -150,6 +182,7 @@ public class BackupService extends IntentService {
                         copy(src, file);//first or new copy
                     } else if (src.lastModified() > file.lastModified()) //resynchronization
                         copy(src, file);
+
                 }
             }
         } catch (IOException e) {
@@ -216,14 +249,8 @@ public class BackupService extends IntentService {
     private void initBackupFolder(File localRootFolder, String backupFolderCanonicalPath) throws IOException {
         List<File> parents = getLocalRootFolderParents(localRootFolder);
 
-        int before = parents.size();
-
-
         for (File root : File.listRoots())
             parents.remove(root);
-
-        int after = parents.size();
-
 
         for (File p : parents) {
             Log.i(TAG, "folder to create during init " + p.getCanonicalPath());

@@ -76,21 +76,39 @@
         android:layout_alignRight="@+id/button2"
         android:layout_below="@+id/button2"
         android:onClick="backup"
-        android:text="@string/backup" />
+        android:text="@string/backup"
+        android:visibility="visible" />
 
     <ProgressBar
         android:id="@+id/progressBar2"
         style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/button3"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/button2"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignBottom="@+id/button5"
+        android:layout_alignLeft="@+id/button5"
+        android:layout_alignParentEnd="false"
+        android:layout_alignParentStart="false"
+        android:layout_alignRight="@+id/button5"
+        android:layout_alignTop="@+id/button5"
         android:focusable="false"
         android:indeterminate="true"
+        android:longClickable="false"
+        android:visibility="invisible" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignBottom="@+id/button5"
+        android:layout_alignEnd="@+id/button5"
+        android:layout_alignLeft="@+id/button5"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignRight="@+id/button5"
+        android:layout_alignTop="@+id/button5"
+        android:gravity="center_vertical|center_horizontal"
+        android:text="@string/backup"
         android:visibility="invisible" />
 
 </RelativeLayout>

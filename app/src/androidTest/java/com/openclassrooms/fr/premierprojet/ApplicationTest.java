@@ -10,6 +10,7 @@ import android.os.Environment;
 import android.provider.ContactsContract;
 import android.telephony.TelephonyManager;
 import android.test.ApplicationTestCase;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.test.suitebuilder.annotation.Suppress;
 import android.util.Log;
@@ -46,6 +47,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     private final String path = "smb://livebox/usbkey_jsie/"; //"smb://ylalsrv01/jsie-home/";
     private final String filename = "android.txt";
     private final String userpwd = "jsie:qsec0fr";
+    private long total = 0l;
 
     public ApplicationTest() {
         super(Application.class);
@@ -169,7 +171,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         cursor.close();
     }
 
-    @Suppress
+    @MediumTest
     public void testExploreLocalFiles() throws Exception {
         File rootFile = Environment.getExternalStorageDirectory();
 
@@ -186,7 +188,13 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         for (File p : parents)
             Log.i(TAG_EXPLORE_LOCAL_FILES, "Parent : " + p.getCanonicalPath());
 
+        Log.i(TAG_EXPLORE_LOCAL_FILES, rootFile.getCanonicalPath() + " = " + rootFile.length());
+        total += rootFile.length();
+
         exploreLocalDirectory(rootFile);
+
+        Log.i(TAG_EXPLORE_LOCAL_FILES, "TOTAL computed = " + total + " / usedSpace = " + (rootFile.getTotalSpace() - rootFile.getFreeSpace()));
+        assertTrue(total == (rootFile.getTotalSpace() - rootFile.getFreeSpace()));
     }
 
     private void exploreLocalDirectory(File file) throws IOException {
@@ -197,8 +205,11 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         assertTrue(file.canRead());
         assertFalse(file.isHidden());
 
+
         for (File f : file.listFiles()) {
             Log.i(TAG_EXPLORE_LOCAL_FILES, f.getCanonicalPath());
+            total += f.length();
+            Log.i(TAG_EXPLORE_LOCAL_FILES, f.getCanonicalPath() + " = " + f.length());
             if (f.isDirectory() && !f.isHidden())
                 exploreLocalDirectory(f);
         }
@@ -384,6 +395,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
     }
 
+    @SmallTest
     public void testSensors() {
         SensorManager sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
 

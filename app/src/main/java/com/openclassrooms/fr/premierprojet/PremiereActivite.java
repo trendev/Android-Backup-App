@@ -177,7 +177,7 @@ public class PremiereActivite extends AppCompatActivity {
             if (resultCode == RESULT_OK)
                 Toast.makeText(this, data.getStringExtra(EXTRA_TOTAL_FILES) + " " + getResources().getString(R.string.files), Toast.LENGTH_SHORT).show();
 
-        //Useless : service is not running through a PendingIntent...
+        //Useless : service is not running a PendingIntent...
         /*if (requestCode == requestBackupActivity) {
             if (data != null) {
                 if (resultCode != RESULT_OK)
@@ -202,14 +202,13 @@ public class PremiereActivite extends AppCompatActivity {
      */
     public void backup(final View v) {
 
-        //TODO: Implement a progress bar in order to show the backup status
-
         initPreferences();
 
-        final ProgressBar backupStatus = (ProgressBar) findViewById(R.id.progressBar2);
+        final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar2);
+        final TextView textView = (TextView) findViewById(R.id.textView2);
 
         //avoid to be garbage-collected...
-        PropertyChangeListener listener = new PropertyChangeListener() {
+        PropertyChangeListener statusListener = new PropertyChangeListener() {
             @Override
             public void propertyChange(final PropertyChangeEvent propertyChangeEvent) {
                 runOnUiThread(new Runnable() {
@@ -219,18 +218,38 @@ public class PremiereActivite extends AppCompatActivity {
                         //button status is the opposite of the service status
                         v.setEnabled(!value);
 
-                        if (value)
-                            backupStatus.setVisibility(View.VISIBLE);
+                        if (value) {
+                            progressBar.setVisibility(View.VISIBLE);
+                            textView.setVisibility(View.VISIBLE);
+                            progressBar.setIndeterminate(false);
+                        }
                         else {
-                            backupStatus.setVisibility(View.INVISIBLE);
-                            backupStatus.setIndeterminate(true);
+                            progressBar.setVisibility(View.INVISIBLE);
+                            textView.setVisibility(View.INVISIBLE);
+                            progressBar.setIndeterminate(true);
+                            progressBar.setProgress(0);
                         }
                     }
                 });
             }
         };
 
-        BackupService.activationProperty.addActivatedPropertyChangeListener(listener);
+        PropertyChangeListener progressListener = new PropertyChangeListener() {
+            @Override
+            public void propertyChange(final PropertyChangeEvent propertyChangeEvent) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        long progress = (100 * (Long) propertyChangeEvent.getNewValue()) / BackupService.localUsedSpace;
+                        progressBar.setProgress((int) progress);
+                    }
+                });
+            }
+        };
+
+        BackupService.activationProperty.addPropertyChangeListener(statusListener);
+        BackupService.progressProperty.addPropertyChangeListener(progressListener);
+
         final Intent intent = new Intent(this, BackupService.class);
         startService(intent);
     }
