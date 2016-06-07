@@ -33,7 +33,8 @@
 
         <activity
             android:name=".PremiereActivite"
-            android:alwaysRetainTaskState="true">
+            android:alwaysRetainTaskState="true"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.SENDTO" />
@@ -43,14 +44,16 @@
         </activity>
         <activity
             android:name=".DeuxiemeActivite"
-            android:label="@string/title_deuxieme_activite" />
+            android:label="@string/title_deuxieme_activite"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".PreferenceActivityExample"
-            android:label="@string/preferences" />
+            android:label="@string/preferences"
+            android:screenOrientation="portrait" />
 
         <service
             android:name=".BackupService"
-            android:exported="false"></service>
+            android:exported="false" />
     </application>
 
 </manifest>
