@@ -23,4 +23,6 @@
     <string name="anonymousOff">Anonymous Disabled</string>
     <string name="anonymousOn">Anonymous Connection</string>
     <string name="anonymous">Anonymous</string>
+    <string name="default_server_path" translatable="false">smb://livebox/usbkey/</string>
+    <string name="default_auth" translatable="false">user:pwd</string>
 </resources>

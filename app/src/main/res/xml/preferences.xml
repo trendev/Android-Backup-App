@@ -18,6 +18,7 @@
 
         <EditTextPreference
             android:dialogTitle="@string/path"
+            android:hint="@string/default_server_path"
             android:key="@string/server_path"
             android:negativeButtonText="@android:string/cancel"
             android:positiveButtonText="@android:string/ok"
@@ -26,6 +27,7 @@
         <EditTextPreference
             android:dependency="@string/checkBoxPref"
             android:dialogTitle="@string/auth"
+            android:hint="@string/default_auth"
             android:key="@string/userpwd_auth"
             android:negativeButtonText="@android:string/cancel"
             android:positiveButtonText="@android:string/ok"
