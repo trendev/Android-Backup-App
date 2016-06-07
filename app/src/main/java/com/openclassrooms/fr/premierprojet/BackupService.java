@@ -96,6 +96,7 @@ public class BackupService extends IntentService {
 
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage());
+                progressProperty.setValue(-1);
             } finally {
                 activationProperty.setValue(false);
             }

@@ -18,4 +18,6 @@
     <string name="anonymous">Anonym</string>
     <string name="anonymousOff">Anonym Behinderte</string>
     <string name="anonymousOn">Anonym Aktiviert</string>
+    <string name="backup_status">Sicherungskopie: %1$s</string>
+    <string name="failed">Gescheitert</string>
 </resources>

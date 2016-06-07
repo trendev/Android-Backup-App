@@ -2,6 +2,7 @@ package com.openclassrooms.fr.premierprojet;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -45,7 +46,8 @@ public class PremiereActivite extends AppCompatActivity {
     static NtlmPasswordAuthentication auth;
 
     /**
-     * The central text zone where message are displayed
+     * The central text zone where message are displayed.
+     * Should be only accessed using local inflater: we don't need to keep this reference.
      */
     private TextView textView;
 
@@ -205,7 +207,10 @@ public class PremiereActivite extends AppCompatActivity {
         initPreferences();
 
         final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar2);
-        final TextView textView = (TextView) findViewById(R.id.textView2);
+        final TextView textView2 = (TextView) findViewById(R.id.textView2);
+
+        progressBar.setIndeterminate(true);
+        progressBar.setProgress(0);
 
         //avoid to be garbage-collected...
         PropertyChangeListener statusListener = new PropertyChangeListener() {
@@ -220,14 +225,23 @@ public class PremiereActivite extends AppCompatActivity {
 
                         if (value) {
                             progressBar.setVisibility(View.VISIBLE);
-                            textView.setVisibility(View.VISIBLE);
+                            textView2.setVisibility(View.VISIBLE);
                             progressBar.setIndeterminate(false);
-                        }
-                        else {
+                        } else {
+
+                            if (BackupService.progressProperty.getValue() == -1) {
+                                String message = getResources().getString(R.string.backup_status, getResources().getString(R.string.failed));
+                                textView.setTextColor(Color.RED);
+                                textView.setText(message);
+                            } else {
+                                String message = getResources().getString(R.string.backup_status, "OK");
+                                textView.setTextColor(Color.parseColor("#FF0099CC"));
+                                textView.setText(message);
+                            }
+
                             progressBar.setVisibility(View.INVISIBLE);
-                            textView.setVisibility(View.INVISIBLE);
-                            progressBar.setIndeterminate(true);
-                            progressBar.setProgress(0);
+                            textView2.setVisibility(View.INVISIBLE);
+
                         }
                     }
                 });
@@ -240,8 +254,13 @@ public class PremiereActivite extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        long progress = (100 * (Long) propertyChangeEvent.getNewValue()) / BackupService.localUsedSpace;
-                        progressBar.setProgress((int) progress);
+
+                        long newValue = (Long) propertyChangeEvent.getNewValue();
+
+                        if (newValue != -1) {
+                            long progress = (100 * newValue) / BackupService.localUsedSpace;
+                            progressBar.setProgress((int) progress);
+                        }
                     }
                 });
             }
@@ -260,6 +279,9 @@ public class PremiereActivite extends AppCompatActivity {
      * By default, will use jsie authentification activated ylalsrv01
      */
     void initPreferences() {
+
+        textView.setTextColor(Color.parseColor("#FF0099CC"));
+        textView.setText("");
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         path = sharedPreferences.getString(getResources().getString(R.string.server_path), "smb://ylalsrv01/jsie-home/");

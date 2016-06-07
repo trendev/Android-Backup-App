@@ -18,4 +18,6 @@
     <string name="anonymous">Anônimo</string>
     <string name="anonymousOff">Anônimo Desativado</string>
     <string name="anonymousOn">Anônimo Ativado</string>
+    <string name="backup_status">Cópia de Segurança : %1$s</string>
+    <string name="failed">Fracassado</string>
 </resources>

@@ -18,4 +18,6 @@
     <string name="anonymous">Anonyme</string>
     <string name="anonymousOff">Mode Anonyme Désactivé</string>
     <string name="anonymousOn">Connection en  Anonyme</string>
+    <string name="backup_status">Sauvegarde : %1$s</string>
+    <string name="failed">Échouée</string>
 </resources>
